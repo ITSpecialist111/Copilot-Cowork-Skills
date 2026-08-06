@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "wordmark": "Zava",
+    "title": "Q2 performance and the road into Q3",
+    "period": "1 Apr - 30 Jun 2026",
+    "prepared": "6 August 2026",
+    "owner": "Revenue Operations",
+    "classification": "Internal",
+    "runningHead": "Q2 Executive Summary \u00b7 Exec Team",
+    "palette": "palette-warm-paper"
+  },
+
+  "pages": [
+    {
+      "id": "p3",
+      "navLabel": "Executive summary",
+      "blocks": [
+        {
+          "type": "hero",
+          "text": "Zava closed {{$1.9M}} in Q2 and carries {{$1.6M}} into Q3, with delivery concentrated in {{7/8 active initiatives}}."
+        },
+        {
+          "type": "kpiRow",
+          "cards": [
+            {
+              "label": "Q2 closed revenue",
+              "value": "$1.9M",
+              "note": "10 deals closed"
+            },
+            {
+              "label": "Open pipeline",
+              "value": "$1.6M",
+              "note": "$310K in final round",
+              "alert": true
+            },
+            {
+              "label": "Avg closed deal",
+              "value": "$194K",
+              "note": "North America leads at 46% of revenue"
+            },
+            {
+              "label": "Project health",
+              "value": "4/8",
+              "note": "2 at risk \u00b7 1 blocked",
+              "alert": true
+            }
+          ]
+        },
+        {
+          "type": "barList",
+          "grow": true,
+          "title": "Closed revenue by region",
+          "subtitle": "Q2 won deals only",
+          "items": [
+            { "label": "North America",  "value": "$874K", "percent": 100 },
+            { "label": "Western Europe", "value": "$533K", "percent": 61 },
+            { "label": "UK & Ireland",   "value": "$297K", "percent": 34, "quiet": true },
+            { "label": "APAC",           "value": "$192K", "percent": 22, "quiet": true }
+          ],
+          "legend": [
+            { "label": "Above quarter average" },
+            { "label": "Below quarter average", "quiet": true }
+          ],
+          "sourceNote": "North America and Western Europe together account for 74% of closed revenue. APAC is first-year territory and is tracked against a separate ramp plan."
+        },
+        {
+          "type": "noteStrip",
+          "text": "Regional split is based on the billing entity on the closed contract, not the account's headquarters. Two multi-region agreements are attributed to the signing entity."
+        }
+      ]
+    }
+  ]
+}

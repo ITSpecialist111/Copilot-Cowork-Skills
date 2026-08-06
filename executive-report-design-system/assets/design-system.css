@@ -1,0 +1,649 @@
+/* ===========================================================================
+   Executive report design system - the frozen stylesheet.
+
+   Copy this verbatim into the <style> block of every generated report. Do not
+   reformat it, do not minify it, do not add to it. It is the design system:
+   every colour, every size and every spacing decision in a report resolves
+   through the custom properties at the top of this file.
+
+   To rebrand, change the four palette blocks and nothing else. Component
+   classes never carry colour of their own, so a palette swap cannot produce an
+   off-brand result.
+   =========================================================================== */
+
+/* ===========================================================================
+   1. STYLE LAYER — every visual decision lives here as a custom property.
+   Change a palette class, get a different report. Nothing else moves.
+   =========================================================================== */
+
+.palette-warm-paper {
+  --paper:        #F7F3EC;
+  --card:         #FFFFFF;
+  --ink:          #2A2622;
+  --ink-muted:    #5F584F;
+  --ink-faint:    #6F675E;
+  --accent:       #C1483C;   /* large and decorative only: >=24px or graphics */
+  --accent-text:  #A93B30;   /* small text. 5.7:1 on paper, 5.4:1 on tint */
+  --accent-tint:  #FBEAE5;
+  --accent-line:  #E0B4AA;
+  --rule:         #E7E1D7;
+  --chip:         #F0EDE7;
+  --ok:           #3F7A4F;
+  --warn:         #96651B;
+  --shadow:       0 1px 2px rgba(42,38,34,.05);
+}
+
+.palette-clean-white {
+  --paper:        #FFFFFF;
+  --card:         #FBFAF9;
+  --ink:          #1C1A18;
+  --ink-muted:    #57504A;
+  --ink-faint:    #6A625B;
+  --accent:       #C1483C;
+  --accent-text:  #A93B30;
+  --accent-tint:  #FCF1EE;
+  --accent-line:  #E6C3BB;
+  --rule:         #EBE7E1;
+  --chip:         #F3F1ED;
+  --ok:           #3F7A4F;
+  --warn:         #96651B;
+  --shadow:       0 1px 2px rgba(28,26,24,.05);
+}
+
+.palette-deep-ink {
+  --paper:        #1E1B18;
+  --card:         #292522;
+  --ink:          #F7F3EC;
+  --ink-muted:    #C4BBAF;
+  --ink-faint:    #B0A69A;
+  --accent:       #E8705F;
+  --accent-text:  #F0917F;   /* light text on dark: lighter, not darker */
+  --accent-tint:  #3A2A26;
+  --accent-line:  #6E453D;
+  --rule:         #3A342F;
+  --chip:         #342F2B;
+  --ok:           #6FB37E;
+  --warn:         #D8A84A;
+  --shadow:       0 1px 2px rgba(0,0,0,.3);
+}
+
+.palette-slate {
+  --paper:        #EEF1F4;
+  --card:         #FFFFFF;
+  --ink:          #1F2933;
+  --ink-muted:    #4E5A66;
+  --ink-faint:    #5C6874;
+  --accent:       #C1483C;
+  --accent-text:  #A93B30;
+  --accent-tint:  #FBEAE5;
+  --accent-line:  #DDB2A9;
+  --rule:         #DCE2E8;
+  --chip:         #EDF1F5;
+  --ok:           #3F7A4F;
+  --warn:         #96651B;
+  --shadow:       0 1px 2px rgba(31,41,51,.06);
+}
+
+:root {
+  /* Type. Segoe UI is the face in the original; the rest are fallbacks that
+     keep the same humanist proportions without a single network request. */
+  --font: 'Segoe UI Variable Display', 'Segoe UI', Aptos, system-ui,
+          -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'Cascadia Mono', Consolas, 'SF Mono', ui-monospace, monospace;
+
+  /* One page, one physical sheet. */
+  --page-w: 297mm;
+  --page-h: 210mm;
+  --page-pad-x: 17mm;
+  --page-pad-y: 13mm;
+
+  --radius: 4px;
+  --radius-lg: 6px;
+  --gap: 14px;
+}
+
+/* ---------------------------------------------------------------- reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font);
+  background: #D9D3C9;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  counter-reset: pageno;
+}
+
+/* ===========================================================================
+   2. PAGE MODEL
+   Each .page is a real DOM element, so running heads and page numbers are
+   real content, not @page margin boxes — which Chromium still does not
+   support. This is the only approach that prints identically everywhere.
+   =========================================================================== */
+
+.report { padding: 28px 16px 48px; }
+
+.page {
+  position: relative;
+  width: var(--page-w);
+  height: var(--page-h);
+  margin: 0 auto 22px;
+  padding: var(--page-pad-y) var(--page-pad-x);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 3px 14px rgba(0,0,0,.16);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  counter-increment: pageno;
+}
+
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--rule);
+  flex: none;
+}
+
+.wordmark { font-size: 12px; font-weight: 600; letter-spacing: .01em; }
+
+.page-meta {
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.page-body { flex: 1 1 auto; padding-top: 14px; min-height: 0; }
+
+.page-foot {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 8px;
+  border-top: 1px solid var(--rule);
+  font-size: 8.5px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.pageno::after { content: counter(pageno); }
+
+/* ===========================================================================
+   3. TYPE RAMP
+   =========================================================================== */
+
+.display {
+  font-size: 40px;
+  font-weight: 300;
+  line-height: 1.14;
+  letter-spacing: -.017em;
+}
+.display .accent { color: var(--accent); display: block; }
+
+.hero {
+  font-size: 38px;
+  font-weight: 300;
+  line-height: 1.26;
+  letter-spacing: -.015em;
+  max-width: 20ch;
+}
+.hero .accent { color: var(--accent); }
+
+.lede {
+  font-size: 12.5px;
+  line-height: 1.62;
+  color: var(--ink-muted);
+  max-width: 62ch;
+}
+
+.eyebrow {
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+
+.section-title { font-size: 14px; font-weight: 600; letter-spacing: -.005em; }
+.section-sub   { font-size: 11px; color: var(--ink-muted); margin-top: 2px; }
+.section-head  { margin-bottom: 9px; }
+
+.accent { color: var(--accent); }
+.caption { font-size: 10px; font-style: italic; color: var(--ink-faint); }
+
+/* ===========================================================================
+   4. COMPONENT CATALOGUE
+   Named blocks. The skill picks which to use and in what order; it never
+   invents a new one and never restyles an existing one.
+   =========================================================================== */
+
+/* -- panel: the white surface every block sits on ------------------------ */
+.panel {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 13px 15px;
+  break-inside: avoid;
+}
+.panel-title { font-size: 11.5px; font-weight: 600; }
+.panel-sub   { font-size: 10px; color: var(--ink-faint); margin-top: 1px; }
+.panel-head  { margin-bottom: 11px; }
+
+/* -- kpi-row ------------------------------------------------------------- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  gap: var(--gap);
+}
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 13px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  min-height: 112px;
+  break-inside: avoid;
+}
+.kpi-label {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.kpi-value {
+  font-size: 40px;
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -.022em;
+  margin: 12px 0 auto;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.kpi-note { font-size: 9.5px; line-height: 1.45; color: var(--ink-muted); margin-top: 12px; }
+.kpi-note.is-alert { color: var(--accent-text); }
+.kpi-delta {
+  font-size: 9.5px; font-weight: 600; margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-delta.is-up   { color: var(--ok); }
+.kpi-delta.is-down { color: var(--accent-text); }
+.kpi-delta .arrow { font-size: 8px; }
+
+/* -- bar-list ------------------------------------------------------------ */
+.bar-list { display: flex; flex-direction: column; gap: 9px; }
+.bar-item { display: grid; grid-template-columns: 118px 1fr 62px; align-items: center; gap: 12px; }
+.bar-label { font-size: 10.5px; color: var(--ink); }
+.bar-track { display: block; height: 9px; background: var(--chip); border-radius: 2px; overflow: hidden; }
+.bar-fill  { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+.bar-fill.is-quiet { background: var(--ink-faint); opacity: .45; }
+.bar-value { font-size: 10.5px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-muted); }
+
+/* -- trend (inline SVG, no library) -------------------------------------- */
+.trend { width: 100%; height: 118px; display: block; }
+.trend .axis   { stroke: var(--rule); stroke-width: 1; }
+.trend .grid   { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 2 3; }
+.trend .line   { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.trend .area   { fill: var(--accent); opacity: .09; }
+.trend .dot    { fill: var(--accent); }
+.trend .tick   { fill: var(--ink-faint); font-size: 8px; font-family: var(--font); }
+
+/* -- flow-strip ---------------------------------------------------------- */
+.flow-strip { display: flex; align-items: stretch; gap: 0; }
+.flow-group { display: flex; align-items: stretch; gap: 0; flex: 3 1 0; min-width: 0; }
+.flow-group.is-emphasis {
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius);
+  padding: 3px;
+  margin: -3px;
+}
+.flow-step {
+  flex: 1 1 0;
+  min-width: 0;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 9px 10px 10px;
+  margin-right: 7px;
+  display: flex;
+  flex-direction: column;
+  break-inside: avoid;
+}
+.flow-group.is-emphasis .flow-step { border-color: transparent; background: transparent; box-shadow: none; }
+.flow-step:last-child { margin-right: 0; }
+.flow-eyebrow {
+  font-size: 7.5px; font-weight: 600; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px;
+}
+.flow-title { font-size: 11px; font-weight: 600; line-height: 1.28; margin-bottom: 6px; }
+.flow-desc  { font-size: 9px; line-height: 1.45; color: var(--ink-muted); position: relative; padding-left: 10px; }
+.flow-desc::before { content: '\2192'; position: absolute; left: 0; top: 0; color: var(--accent); }
+.flow-step .badge { margin-top: auto; }
+
+.badge {
+  align-self: flex-start;
+  display: inline-block;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 2px;
+  margin-top: 9px;
+}
+.badge-quiet { background: var(--chip); color: var(--ink-muted); }
+.badge-live  { background: var(--accent); color: #fff; }
+
+/* -- numbered-cards ------------------------------------------------------ */
+.numbered-cards { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: var(--gap); }
+.num-card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 12px 14px 11px;
+  display: flex;
+  flex-direction: column;
+  break-inside: avoid;
+}
+.num-card.is-emphasis { background: var(--accent-tint); border-color: var(--accent-line); }
+.num-badge {
+  width: 19px; height: 19px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 9.5px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 11px;
+}
+.num-card.is-emphasis .num-badge { background: var(--ink); }
+.num-title { font-size: 12.5px; font-weight: 600; margin-bottom: 7px; }
+.num-body  { font-size: 9.5px; line-height: 1.5; color: var(--ink-muted); }
+.num-takeaway {
+  font-size: 9.5px; font-weight: 600; color: var(--ink);
+  margin-top: 9px; padding-top: 8px; border-top: 1px solid var(--rule);
+}
+.chip {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  background: var(--chip);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 1px 4px;
+  white-space: nowrap;
+}
+
+/* -- status-grid --------------------------------------------------------- */
+.status-grid { display: grid; grid-template-columns: repeat(var(--cols, 2), 1fr); gap: 8px 18px; }
+.status-item { display: grid; grid-template-columns: 9px 1fr auto; align-items: baseline; gap: 9px;
+               padding-bottom: 7px; border-bottom: 1px solid var(--rule); }
+.dot { display: block; width: 7px; height: 7px; border-radius: 50%; position: relative; top: -1px; }
+.dot.ok   { background: var(--ok); }
+.dot.warn { background: var(--warn); }
+.dot.risk { background: var(--accent); }
+.status-label { font-size: 10.5px; }
+.status-note  { font-size: 9.5px; color: var(--ink-faint); text-align: right; }
+
+/* -- compare-strip ------------------------------------------------------- */
+.compare-strip { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 0; }
+.compare-col { padding: 0 16px; border-left: 1px solid var(--rule); }
+.compare-col:first-child { padding-left: 0; border-left: 0; }
+.compare-label { font-size: 8px; font-weight: 600; letter-spacing: .14em;
+                 text-transform: uppercase; color: var(--ink-faint); }
+.compare-value { font-size: 24px; font-weight: 300; letter-spacing: -.02em; margin-top: 6px;
+                 font-variant-numeric: tabular-nums; }
+.compare-delta { font-size: 9.5px; color: var(--ink-muted); margin-top: 4px; }
+.compare-delta.is-up   { color: var(--ok); }
+.compare-delta.is-down { color: var(--accent-text); }
+
+/* -- prose: narrative body copy. Pages 2..n carry argument, not just numbers. */
+.prose { font-size: 11px; line-height: 1.72; color: var(--ink-muted); max-width: 78ch; }
+.prose.cols-2 { column-count: 2; column-gap: 26px; max-width: none; }
+.prose h3 {
+  font-size: 11.5px; font-weight: 600; color: var(--ink);
+  margin: 14px 0 5px; break-after: avoid;
+}
+.prose h3:first-child { margin-top: 0; }
+.prose p { margin-bottom: 9px; }
+.prose p:last-child { margin-bottom: 0; }
+.prose strong { color: var(--ink); font-weight: 600; }
+.prose ul { margin: 0 0 9px 15px; }
+.prose li { margin-bottom: 4px; }
+
+/* -- risk-callout: severity at block level, not buried in a caption --------- */
+.risk-callout {
+  display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: start;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius);
+  padding: 11px 13px;
+  break-inside: avoid;
+}
+.risk-callout.is-warn { background: var(--chip); border-color: var(--rule); }
+.risk-callout .risk-mark {
+  font-size: 8px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--accent-text); padding-top: 1px; white-space: nowrap;
+}
+.risk-callout.is-warn .risk-mark { color: var(--ink-muted); }
+.risk-title { font-size: 10.5px; font-weight: 600; margin-bottom: 3px; }
+.risk-body  { font-size: 9.5px; line-height: 1.55; color: var(--ink-muted); }
+
+/* -- legend: a chart without one fails on a mono print --------------------- */
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 9px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 9px; color: var(--ink-muted); }
+.legend-key { display: block; width: 11px; height: 3px; border-radius: 2px; background: var(--accent); }
+.legend-key.is-quiet { background: var(--ink-faint); opacity: .45; }
+
+/* -- source-note ----------------------------------------------------------- */
+.source-note {
+  font-size: 8.5px; letter-spacing: .04em; color: var(--ink-faint); margin-top: 8px;
+}
+
+/* -- toc: the printed contents page ---------------------------------------- */
+.toc { display: flex; flex-direction: column; gap: 0; max-width: 74ch; }
+.toc-item {
+  display: grid; grid-template-columns: 22px 1fr auto; align-items: baseline; gap: 12px;
+  padding: 9px 0; border-bottom: 1px solid var(--rule);
+}
+.toc-num   { font-size: 9.5px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.toc-label { font-size: 12.5px; }
+.toc-sub   { font-size: 9.5px; color: var(--ink-faint); display: block; margin-top: 2px; }
+.toc-page  { font-size: 11px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+
+/* -- section-divider: a full-bleed part opener ----------------------------- */
+.divider {
+  height: 100%; display: flex; flex-direction: column; justify-content: center;
+}
+.divider-num {
+  font-size: 13px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 16px;
+}
+.divider-title { font-size: 46px; font-weight: 300; line-height: 1.1; letter-spacing: -.02em; }
+.divider-sub { font-size: 13px; color: var(--ink-muted); margin-top: 16px; max-width: 50ch; line-height: 1.6; }
+
+/* -- highlights ---------------------------------------------------------- */
+.highlights { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: var(--gap); }
+.highlight-card {
+  background: var(--card); border: 1px solid var(--rule); border-left: 2px solid var(--accent);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 11px 13px; break-inside: avoid;
+}
+.highlight-title { font-size: 10.5px; font-weight: 600; margin-bottom: 4px; }
+.highlight-body  { font-size: 9.5px; line-height: 1.55; color: var(--ink-muted); }
+
+/* -- data-table ---------------------------------------------------------- */
+.data-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.data-table thead { display: table-header-group; }  /* repeats if a table breaks */
+.data-table tr { break-inside: avoid; }
+.data-table th {
+  text-align: left; font-size: 8px; font-weight: 600; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-faint);
+  padding: 0 10px 7px 0; border-bottom: 1px solid var(--rule);
+}
+.data-table td { padding: 7px 10px 7px 0; border-bottom: 1px solid var(--rule); }
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; padding-right: 0; }
+.data-table tr:last-child td { border-bottom: 0; }
+.data-table tfoot td { font-weight: 600; border-top: 1px solid var(--ink); border-bottom: 0; padding-top: 8px; }
+
+/* -- pull-quote ---------------------------------------------------------- */
+.pull-quote { border-left: 2px solid var(--accent); padding-left: 15px; break-inside: avoid; }
+.pull-quote blockquote { font-size: 17px; font-weight: 300; line-height: 1.42; letter-spacing: -.01em; }
+.pull-quote cite { display: block; font-size: 9.5px; font-style: normal; color: var(--ink-faint);
+                   margin-top: 9px; letter-spacing: .06em; text-transform: uppercase; }
+
+/* -- note-strip ---------------------------------------------------------- */
+.note-strip { font-size: 9px; line-height: 1.55; color: var(--ink-faint);
+              border-top: 1px solid var(--rule); padding-top: 8px; }
+
+/* -- cover --------------------------------------------------------------- */
+.cover { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+.cover-title { font-size: 52px; font-weight: 300; line-height: 1.08; letter-spacing: -.022em; }
+.cover-title .accent { display: block; color: var(--accent); }
+.cover-meta { display: flex; gap: 46px; }
+.cover-meta div { display: flex; flex-direction: column; gap: 4px; }
+.cover-rule { width: 54px; height: 2px; background: var(--accent); margin: 22px 0; }
+
+/* -- utility ------------------------------------------------------------- */
+.stack   { display: flex; flex-direction: column; }
+.gap-sm  { gap: 10px; } .gap-md { gap: 15px; } .gap-lg { gap: 18px; }
+.cols-2  { --cols: 2; } .cols-3 { --cols: 3; } .cols-4 { --cols: 4; }
+.split   { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+.split-wide { display: grid; grid-template-columns: 1.6fr 1fr; gap: var(--gap); }
+.grow    { flex: 1 1 auto; min-height: 0; }
+.inline-chips { display: flex; flex-wrap: wrap; gap: 3px; margin: 6px 0; }
+
+/* ===========================================================================
+   5. SCREEN CHROME — never printed, never part of a generated report.
+   =========================================================================== */
+.toolbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 9px 18px;
+  background: #2A2622; color: #F7F3EC;
+  font-size: 11px;
+}
+.toolbar strong { font-weight: 600; letter-spacing: .02em; }
+.toolbar nav { display: flex; gap: 12px; flex-wrap: wrap; }
+.toolbar a { color: #C9C0B4; text-decoration: none; }
+.toolbar a:hover, .toolbar a:focus-visible { color: #fff; text-decoration: underline; }
+.toolbar button {
+  margin-left: auto; font: inherit; font-size: 11px;
+  background: #C1483C; color: #fff; border: 0;
+  padding: 5px 12px; border-radius: 3px; cursor: pointer;
+}
+.toolbar button:hover { background: #A93B30; }
+:focus-visible { outline: 2px solid #C1483C; outline-offset: 2px; }
+
+/* ===========================================================================
+   6. PRINT — one .page, one sheet. Nothing clever, because clever does not
+   survive four print engines.
+   =========================================================================== */
+@page { size: A4 landscape; margin: 0; }
+
+@media print {
+  body { background: #fff; }
+  .toolbar { display: none !important; }
+  .report { padding: 0; }
+  .page {
+    margin: 0;
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+    /* A hair under the sheet: exact equality rounds up and emits a blank page. */
+    height: 209.5mm;
+  }
+  .page:last-of-type { break-after: auto; page-break-after: auto; }
+  .panel, .kpi-card, .num-card, .flow-step, .highlight-card, .pull-quote {
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  /* Paper must never catch a half-counted number or a half-drawn line. The
+     script also snaps values on beforeprint; this is the belt to that brace. */
+  .js-motion .rise, .js-motion .rise.is-in { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .js-motion .bar-fill { width: var(--target) !important; transition: none !important; }
+  .js-motion .trend .line { stroke-dashoffset: 0 !important; }
+  .js-motion .trend .area { opacity: .09 !important; }
+  .js-motion .trend .dot { opacity: 1 !important; }
+  .js-motion .is-counting::after { display: none !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* ===========================================================================
+   7. MOTION — count-up, bar fill, chart draw.
+   Progressive enhancement only. Every final value is real text in the HTML,
+   so with scripting off, or in print, the report is complete and correct.
+   The script only replays the arrival.
+   =========================================================================== */
+
+/* Numerals must not reflow while counting: tabular figures fix the glyph
+   width, and reserving the final width stops the card from twitching. */
+.kpi-value, .compare-value, .count-up {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Staggered "ink rise". The custom property is set per element by the script;
+   nothing moves unless the script runs. */
+.js-motion .rise {
+  opacity: 0;
+  transform: translateY(9px);
+}
+.js-motion .rise.is-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity .62s cubic-bezier(.22,.61,.36,1) var(--delay, 0ms),
+              transform .62s cubic-bezier(.22,.61,.36,1) var(--delay, 0ms);
+}
+
+/* The counting numeral gets a faint accent underline that retracts as the
+   number settles — a small piece of theatre that reads as "resolving". */
+.kpi-value, .compare-value { position: relative; }
+.js-motion .is-counting::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 2px;
+  height: 2px;
+  width: 100%;
+  background: var(--accent);
+  opacity: .3;
+  transform-origin: left center;
+  animation: settle 1.5s cubic-bezier(.22,.61,.36,1) forwards;
+}
+@keyframes settle {
+  from { transform: scaleX(1); opacity: .3; }
+  to   { transform: scaleX(0); opacity: 0; }
+}
+
+/* Bars grow from nothing. Width is authored inline; the script parks it at 0
+   and hands it back. */
+.js-motion .bar-fill { width: 0 !important; }
+.js-motion .bar-fill.is-in {
+  width: var(--target) !important;
+  transition: width 1.15s cubic-bezier(.22,.61,.36,1) var(--delay, 0ms);
+}
+
+/* The trend line draws itself, then the fill and points arrive. */
+.js-motion .trend .line { stroke-dashoffset: var(--len); }
+.js-motion .trend.is-in .line { transition: stroke-dashoffset 1.5s cubic-bezier(.33,.9,.4,1); stroke-dashoffset: 0; }
+.js-motion .trend .area,
+.js-motion .trend .dot { opacity: 0; }
+.js-motion .trend.is-in .area { transition: opacity .7s ease .75s; opacity: .09; }
+.js-motion .trend.is-in .dot  { transition: opacity .34s ease var(--delay, 0ms); opacity: 1; }
+
+/* Nothing animates when the reader has asked for stillness, or on paper. */
+@media (prefers-reduced-motion: reduce) {
+  .js-motion .rise, .js-motion .rise.is-in { opacity: 1; transform: none; transition: none; }
+  .js-motion .bar-fill { width: var(--target) !important; transition: none; }
+  .js-motion .trend .line { stroke-dashoffset: 0; }
+  .js-motion .trend .area { opacity: .09; }
+  .js-motion .trend .dot { opacity: 1; }
+  .js-motion .is-counting::after { animation: none; opacity: 0; }
+}

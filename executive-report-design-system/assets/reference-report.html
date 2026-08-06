@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design System — Multi-page Executive Report</title>
+<!--
+  ============================================================================
+  THE VISUAL TARGET.  This is the "beautiful HTML example" — step 1 of the
+  pipeline.  Hand this whole file to an AI and it can read every design token,
+  every type ramp and every component out of one place.
+
+  Rules this file obeys, and any report generated from it must obey too:
+    - Self-contained.  No CDN, no webfont request, no external script, no
+      server.  It opens from a file share, an email attachment or SharePoint.
+    - System fonts only.  On Windows this resolves to Segoe UI, which is the
+      face in the original design.
+    - Charts are inline SVG or CSS.  No charting library.
+    - Paginated.  Every <section class="page"> is one physical A4 landscape
+      sheet, on screen and in print.
+  ============================================================================
+-->
+<style>
+/* ===========================================================================
+   1. STYLE LAYER — every visual decision lives here as a custom property.
+   Change a palette class, get a different report. Nothing else moves.
+   =========================================================================== */
+
+.palette-warm-paper {
+  --paper:        #F7F3EC;
+  --card:         #FFFFFF;
+  --ink:          #2A2622;
+  --ink-muted:    #5F584F;
+  --ink-faint:    #6F675E;
+  --accent:       #C1483C;   /* large and decorative only: >=24px or graphics */
+  --accent-text:  #A93B30;   /* small text. 5.7:1 on paper, 5.4:1 on tint */
+  --accent-tint:  #FBEAE5;
+  --accent-line:  #E0B4AA;
+  --rule:         #E7E1D7;
+  --chip:         #F0EDE7;
+  --ok:           #3F7A4F;
+  --warn:         #96651B;
+  --shadow:       0 1px 2px rgba(42,38,34,.05);
+}
+
+.palette-clean-white {
+  --paper:        #FFFFFF;
+  --card:         #FBFAF9;
+  --ink:          #1C1A18;
+  --ink-muted:    #57504A;
+  --ink-faint:    #6A625B;
+  --accent:       #C1483C;
+  --accent-text:  #A93B30;
+  --accent-tint:  #FCF1EE;
+  --accent-line:  #E6C3BB;
+  --rule:         #EBE7E1;
+  --chip:         #F3F1ED;
+  --ok:           #3F7A4F;
+  --warn:         #96651B;
+  --shadow:       0 1px 2px rgba(28,26,24,.05);
+}
+
+.palette-deep-ink {
+  --paper:        #1E1B18;
+  --card:         #292522;
+  --ink:          #F7F3EC;
+  --ink-muted:    #C4BBAF;
+  --ink-faint:    #B0A69A;
+  --accent:       #E8705F;
+  --accent-text:  #F0917F;   /* light text on dark: lighter, not darker */
+  --accent-tint:  #3A2A26;
+  --accent-line:  #6E453D;
+  --rule:         #3A342F;
+  --chip:         #342F2B;
+  --ok:           #6FB37E;
+  --warn:         #D8A84A;
+  --shadow:       0 1px 2px rgba(0,0,0,.3);
+}
+
+.palette-slate {
+  --paper:        #EEF1F4;
+  --card:         #FFFFFF;
+  --ink:          #1F2933;
+  --ink-muted:    #4E5A66;
+  --ink-faint:    #5C6874;
+  --accent:       #C1483C;
+  --accent-text:  #A93B30;
+  --accent-tint:  #FBEAE5;
+  --accent-line:  #DDB2A9;
+  --rule:         #DCE2E8;
+  --chip:         #EDF1F5;
+  --ok:           #3F7A4F;
+  --warn:         #96651B;
+  --shadow:       0 1px 2px rgba(31,41,51,.06);
+}
+
+:root {
+  /* Type. Segoe UI is the face in the original; the rest are fallbacks that
+     keep the same humanist proportions without a single network request. */
+  --font: 'Segoe UI Variable Display', 'Segoe UI', Aptos, system-ui,
+          -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'Cascadia Mono', Consolas, 'SF Mono', ui-monospace, monospace;
+
+  /* One page, one physical sheet. */
+  --page-w: 297mm;
+  --page-h: 210mm;
+  --page-pad-x: 17mm;
+  --page-pad-y: 13mm;
+
+  --radius: 4px;
+  --radius-lg: 6px;
+  --gap: 14px;
+}
+
+/* ---------------------------------------------------------------- reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font);
+  background: #D9D3C9;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  counter-reset: pageno;
+}
+
+/* ===========================================================================
+   2. PAGE MODEL
+   Each .page is a real DOM element, so running heads and page numbers are
+   real content, not @page margin boxes — which Chromium still does not
+   support. This is the only approach that prints identically everywhere.
+   =========================================================================== */
+
+.report { padding: 28px 16px 48px; }
+
+.page {
+  position: relative;
+  width: var(--page-w);
+  height: var(--page-h);
+  margin: 0 auto 22px;
+  padding: var(--page-pad-y) var(--page-pad-x);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 3px 14px rgba(0,0,0,.16);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  counter-increment: pageno;
+}
+
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--rule);
+  flex: none;
+}
+
+.wordmark { font-size: 12px; font-weight: 600; letter-spacing: .01em; }
+
+.page-meta {
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.page-body { flex: 1 1 auto; padding-top: 14px; min-height: 0; }
+
+.page-foot {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 8px;
+  border-top: 1px solid var(--rule);
+  font-size: 8.5px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.pageno::after { content: counter(pageno); }
+
+/* ===========================================================================
+   3. TYPE RAMP
+   =========================================================================== */
+
+.display {
+  font-size: 40px;
+  font-weight: 300;
+  line-height: 1.14;
+  letter-spacing: -.017em;
+}
+.display .accent { color: var(--accent); display: block; }
+
+.hero {
+  font-size: 38px;
+  font-weight: 300;
+  line-height: 1.26;
+  letter-spacing: -.015em;
+  max-width: 20ch;
+}
+.hero .accent { color: var(--accent); }
+
+.lede {
+  font-size: 12.5px;
+  line-height: 1.62;
+  color: var(--ink-muted);
+  max-width: 62ch;
+}
+
+.eyebrow {
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+
+.section-title { font-size: 14px; font-weight: 600; letter-spacing: -.005em; }
+.section-sub   { font-size: 11px; color: var(--ink-muted); margin-top: 2px; }
+.section-head  { margin-bottom: 9px; }
+
+.accent { color: var(--accent); }
+.caption { font-size: 10px; font-style: italic; color: var(--ink-faint); }
+
+/* ===========================================================================
+   4. COMPONENT CATALOGUE
+   Named blocks. The skill picks which to use and in what order; it never
+   invents a new one and never restyles an existing one.
+   =========================================================================== */
+
+/* -- panel: the white surface every block sits on ------------------------ */
+.panel {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 13px 15px;
+  break-inside: avoid;
+}
+.panel-title { font-size: 11.5px; font-weight: 600; }
+.panel-sub   { font-size: 10px; color: var(--ink-faint); margin-top: 1px; }
+.panel-head  { margin-bottom: 11px; }
+
+/* -- kpi-row ------------------------------------------------------------- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  gap: var(--gap);
+}
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 13px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  min-height: 112px;
+  break-inside: avoid;
+}
+.kpi-label {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.kpi-value {
+  font-size: 40px;
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -.022em;
+  margin: 12px 0 auto;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.kpi-note { font-size: 9.5px; line-height: 1.45; color: var(--ink-muted); margin-top: 12px; }
+.kpi-note.is-alert { color: var(--accent-text); }
+.kpi-delta {
+  font-size: 9.5px; font-weight: 600; margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-delta.is-up   { color: var(--ok); }
+.kpi-delta.is-down { color: var(--accent-text); }
+.kpi-delta .arrow { font-size: 8px; }
+
+/* -- bar-list ------------------------------------------------------------ */
+.bar-list { display: flex; flex-direction: column; gap: 9px; }
+.bar-item { display: grid; grid-template-columns: 118px 1fr 62px; align-items: center; gap: 12px; }
+.bar-label { font-size: 10.5px; color: var(--ink); }
+.bar-track { display: block; height: 9px; background: var(--chip); border-radius: 2px; overflow: hidden; }
+.bar-fill  { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+.bar-fill.is-quiet { background: var(--ink-faint); opacity: .45; }
+.bar-value { font-size: 10.5px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-muted); }
+
+/* -- trend (inline SVG, no library) -------------------------------------- */
+.trend { width: 100%; height: 118px; display: block; }
+.trend .axis   { stroke: var(--rule); stroke-width: 1; }
+.trend .grid   { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 2 3; }
+.trend .line   { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.trend .area   { fill: var(--accent); opacity: .09; }
+.trend .dot    { fill: var(--accent); }
+.trend .tick   { fill: var(--ink-faint); font-size: 8px; font-family: var(--font); }
+
+/* -- flow-strip ---------------------------------------------------------- */
+.flow-strip { display: flex; align-items: stretch; gap: 0; }
+.flow-group { display: flex; align-items: stretch; gap: 0; flex: 3 1 0; min-width: 0; }
+.flow-group.is-emphasis {
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius);
+  padding: 3px;
+  margin: -3px;
+}
+.flow-step {
+  flex: 1 1 0;
+  min-width: 0;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 9px 10px 10px;
+  margin-right: 7px;
+  display: flex;
+  flex-direction: column;
+  break-inside: avoid;
+}
+.flow-group.is-emphasis .flow-step { border-color: transparent; background: transparent; box-shadow: none; }
+.flow-step:last-child { margin-right: 0; }
+.flow-eyebrow {
+  font-size: 7.5px; font-weight: 600; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px;
+}
+.flow-title { font-size: 11px; font-weight: 600; line-height: 1.28; margin-bottom: 6px; }
+.flow-desc  { font-size: 9px; line-height: 1.45; color: var(--ink-muted); position: relative; padding-left: 10px; }
+.flow-desc::before { content: '\2192'; position: absolute; left: 0; top: 0; color: var(--accent); }
+.flow-step .badge { margin-top: auto; }
+
+.badge {
+  align-self: flex-start;
+  display: inline-block;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 2px;
+  margin-top: 9px;
+}
+.badge-quiet { background: var(--chip); color: var(--ink-muted); }
+.badge-live  { background: var(--accent); color: #fff; }
+
+/* -- numbered-cards ------------------------------------------------------ */
+.numbered-cards { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: var(--gap); }
+.num-card {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 12px 14px 11px;
+  display: flex;
+  flex-direction: column;
+  break-inside: avoid;
+}
+.num-card.is-emphasis { background: var(--accent-tint); border-color: var(--accent-line); }
+.num-badge {
+  width: 19px; height: 19px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 9.5px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 11px;
+}
+.num-card.is-emphasis .num-badge { background: var(--ink); }
+.num-title { font-size: 12.5px; font-weight: 600; margin-bottom: 7px; }
+.num-body  { font-size: 9.5px; line-height: 1.5; color: var(--ink-muted); }
+.num-takeaway {
+  font-size: 9.5px; font-weight: 600; color: var(--ink);
+  margin-top: 9px; padding-top: 8px; border-top: 1px solid var(--rule);
+}
+.chip {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  background: var(--chip);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 1px 4px;
+  white-space: nowrap;
+}
+
+/* -- status-grid --------------------------------------------------------- */
+.status-grid { display: grid; grid-template-columns: repeat(var(--cols, 2), 1fr); gap: 8px 18px; }
+.status-item { display: grid; grid-template-columns: 9px 1fr auto; align-items: baseline; gap: 9px;
+               padding-bottom: 7px; border-bottom: 1px solid var(--rule); }
+.dot { display: block; width: 7px; height: 7px; border-radius: 50%; position: relative; top: -1px; }
+.dot.ok   { background: var(--ok); }
+.dot.warn { background: var(--warn); }
+.dot.risk { background: var(--accent); }
+.status-label { font-size: 10.5px; }
+.status-note  { font-size: 9.5px; color: var(--ink-faint); text-align: right; }
+
+/* -- compare-strip ------------------------------------------------------- */
+.compare-strip { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 0; }
+.compare-col { padding: 0 16px; border-left: 1px solid var(--rule); }
+.compare-col:first-child { padding-left: 0; border-left: 0; }
+.compare-label { font-size: 8px; font-weight: 600; letter-spacing: .14em;
+                 text-transform: uppercase; color: var(--ink-faint); }
+.compare-value { font-size: 24px; font-weight: 300; letter-spacing: -.02em; margin-top: 6px;
+                 font-variant-numeric: tabular-nums; }
+.compare-delta { font-size: 9.5px; color: var(--ink-muted); margin-top: 4px; }
+.compare-delta.is-up   { color: var(--ok); }
+.compare-delta.is-down { color: var(--accent-text); }
+
+/* -- prose: narrative body copy. Pages 2..n carry argument, not just numbers. */
+.prose { font-size: 11px; line-height: 1.72; color: var(--ink-muted); max-width: 78ch; }
+.prose.cols-2 { column-count: 2; column-gap: 26px; max-width: none; }
+.prose h3 {
+  font-size: 11.5px; font-weight: 600; color: var(--ink);
+  margin: 14px 0 5px; break-after: avoid;
+}
+.prose h3:first-child { margin-top: 0; }
+.prose p { margin-bottom: 9px; }
+.prose p:last-child { margin-bottom: 0; }
+.prose strong { color: var(--ink); font-weight: 600; }
+.prose ul { margin: 0 0 9px 15px; }
+.prose li { margin-bottom: 4px; }
+
+/* -- risk-callout: severity at block level, not buried in a caption --------- */
+.risk-callout {
+  display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: start;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius);
+  padding: 11px 13px;
+  break-inside: avoid;
+}
+.risk-callout.is-warn { background: var(--chip); border-color: var(--rule); }
+.risk-callout .risk-mark {
+  font-size: 8px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--accent-text); padding-top: 1px; white-space: nowrap;
+}
+.risk-callout.is-warn .risk-mark { color: var(--ink-muted); }
+.risk-title { font-size: 10.5px; font-weight: 600; margin-bottom: 3px; }
+.risk-body  { font-size: 9.5px; line-height: 1.55; color: var(--ink-muted); }
+
+/* -- legend: a chart without one fails on a mono print --------------------- */
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 9px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 9px; color: var(--ink-muted); }
+.legend-key { display: block; width: 11px; height: 3px; border-radius: 2px; background: var(--accent); }
+.legend-key.is-quiet { background: var(--ink-faint); opacity: .45; }
+
+/* -- source-note ----------------------------------------------------------- */
+.source-note {
+  font-size: 8.5px; letter-spacing: .04em; color: var(--ink-faint); margin-top: 8px;
+}
+
+/* -- toc: the printed contents page ---------------------------------------- */
+.toc { display: flex; flex-direction: column; gap: 0; max-width: 74ch; }
+.toc-item {
+  display: grid; grid-template-columns: 22px 1fr auto; align-items: baseline; gap: 12px;
+  padding: 9px 0; border-bottom: 1px solid var(--rule);
+}
+.toc-num   { font-size: 9.5px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.toc-label { font-size: 12.5px; }
+.toc-sub   { font-size: 9.5px; color: var(--ink-faint); display: block; margin-top: 2px; }
+.toc-page  { font-size: 11px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+
+/* -- section-divider: a full-bleed part opener ----------------------------- */
+.divider {
+  height: 100%; display: flex; flex-direction: column; justify-content: center;
+}
+.divider-num {
+  font-size: 13px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 16px;
+}
+.divider-title { font-size: 46px; font-weight: 300; line-height: 1.1; letter-spacing: -.02em; }
+.divider-sub { font-size: 13px; color: var(--ink-muted); margin-top: 16px; max-width: 50ch; line-height: 1.6; }
+
+/* -- highlights ---------------------------------------------------------- */
+.highlights { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: var(--gap); }
+.highlight-card {
+  background: var(--card); border: 1px solid var(--rule); border-left: 2px solid var(--accent);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 11px 13px; break-inside: avoid;
+}
+.highlight-title { font-size: 10.5px; font-weight: 600; margin-bottom: 4px; }
+.highlight-body  { font-size: 9.5px; line-height: 1.55; color: var(--ink-muted); }
+
+/* -- data-table ---------------------------------------------------------- */
+.data-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.data-table thead { display: table-header-group; }  /* repeats if a table breaks */
+.data-table tr { break-inside: avoid; }
+.data-table th {
+  text-align: left; font-size: 8px; font-weight: 600; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-faint);
+  padding: 0 10px 7px 0; border-bottom: 1px solid var(--rule);
+}
+.data-table td { padding: 7px 10px 7px 0; border-bottom: 1px solid var(--rule); }
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; padding-right: 0; }
+.data-table tr:last-child td { border-bottom: 0; }
+.data-table tfoot td { font-weight: 600; border-top: 1px solid var(--ink); border-bottom: 0; padding-top: 8px; }
+
+/* -- pull-quote ---------------------------------------------------------- */
+.pull-quote { border-left: 2px solid var(--accent); padding-left: 15px; break-inside: avoid; }
+.pull-quote blockquote { font-size: 17px; font-weight: 300; line-height: 1.42; letter-spacing: -.01em; }
+.pull-quote cite { display: block; font-size: 9.5px; font-style: normal; color: var(--ink-faint);
+                   margin-top: 9px; letter-spacing: .06em; text-transform: uppercase; }
+
+/* -- note-strip ---------------------------------------------------------- */
+.note-strip { font-size: 9px; line-height: 1.55; color: var(--ink-faint);
+              border-top: 1px solid var(--rule); padding-top: 8px; }
+
+/* -- cover --------------------------------------------------------------- */
+.cover { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+.cover-title { font-size: 52px; font-weight: 300; line-height: 1.08; letter-spacing: -.022em; }
+.cover-title .accent { display: block; color: var(--accent); }
+.cover-meta { display: flex; gap: 46px; }
+.cover-meta div { display: flex; flex-direction: column; gap: 4px; }
+.cover-rule { width: 54px; height: 2px; background: var(--accent); margin: 22px 0; }
+
+/* -- utility ------------------------------------------------------------- */
+.stack   { display: flex; flex-direction: column; }
+.gap-sm  { gap: 10px; } .gap-md { gap: 15px; } .gap-lg { gap: 18px; }
+.cols-2  { --cols: 2; } .cols-3 { --cols: 3; } .cols-4 { --cols: 4; }
+.split   { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+.split-wide { display: grid; grid-template-columns: 1.6fr 1fr; gap: var(--gap); }
+.grow    { flex: 1 1 auto; min-height: 0; }
+.inline-chips { display: flex; flex-wrap: wrap; gap: 3px; margin: 6px 0; }
+
+/* ===========================================================================
+   5. SCREEN CHROME — never printed, never part of a generated report.
+   =========================================================================== */
+.toolbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 9px 18px;
+  background: #2A2622; color: #F7F3EC;
+  font-size: 11px;
+}
+.toolbar strong { font-weight: 600; letter-spacing: .02em; }
+.toolbar nav { display: flex; gap: 12px; flex-wrap: wrap; }
+.toolbar a { color: #C9C0B4; text-decoration: none; }
+.toolbar a:hover, .toolbar a:focus-visible { color: #fff; text-decoration: underline; }
+.toolbar button {
+  margin-left: auto; font: inherit; font-size: 11px;
+  background: #C1483C; color: #fff; border: 0;
+  padding: 5px 12px; border-radius: 3px; cursor: pointer;
+}
+.toolbar button:hover { background: #A93B30; }
+:focus-visible { outline: 2px solid #C1483C; outline-offset: 2px; }
+
+/* ===========================================================================
+   6. PRINT — one .page, one sheet. Nothing clever, because clever does not
+   survive four print engines.
+   =========================================================================== */
+@page { size: A4 landscape; margin: 0; }
+
+@media print {
+  body { background: #fff; }
+  .toolbar { display: none !important; }
+  .report { padding: 0; }
+  .page {
+    margin: 0;
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+    /* A hair under the sheet: exact equality rounds up and emits a blank page. */
+    height: 209.5mm;
+  }
+  .page:last-of-type { break-after: auto; page-break-after: auto; }
+  .panel, .kpi-card, .num-card, .flow-step, .highlight-card, .pull-quote {
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  /* Paper must never catch a half-counted number or a half-drawn line. The
+     script also snaps values on beforeprint; this is the belt to that brace. */
+  .js-motion .rise, .js-motion .rise.is-in { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .js-motion .bar-fill { width: var(--target) !important; transition: none !important; }
+  .js-motion .trend .line { stroke-dashoffset: 0 !important; }
+  .js-motion .trend .area { opacity: .09 !important; }
+  .js-motion .trend .dot { opacity: 1 !important; }
+  .js-motion .is-counting::after { display: none !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* ===========================================================================
+   7. MOTION — count-up, bar fill, chart draw.
+   Progressive enhancement only. Every final value is real text in the HTML,
+   so with scripting off, or in print, the report is complete and correct.
+   The script only replays the arrival.
+   =========================================================================== */
+
+/* Numerals must not reflow while counting: tabular figures fix the glyph
+   width, and reserving the final width stops the card from twitching. */
+.kpi-value, .compare-value, .count-up {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Staggered "ink rise". The custom property is set per element by the script;
+   nothing moves unless the script runs. */
+.js-motion .rise {
+  opacity: 0;
+  transform: translateY(9px);
+}
+.js-motion .rise.is-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity .62s cubic-bezier(.22,.61,.36,1) var(--delay, 0ms),
+              transform .62s cubic-bezier(.22,.61,.36,1) var(--delay, 0ms);
+}
+
+/* The counting numeral gets a faint accent underline that retracts as the
+   number settles — a small piece of theatre that reads as "resolving". */
+.kpi-value, .compare-value { position: relative; }
+.js-motion .is-counting::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 2px;
+  height: 2px;
+  width: 100%;
+  background: var(--accent);
+  opacity: .3;
+  transform-origin: left center;
+  animation: settle 1.5s cubic-bezier(.22,.61,.36,1) forwards;
+}
+@keyframes settle {
+  from { transform: scaleX(1); opacity: .3; }
+  to   { transform: scaleX(0); opacity: 0; }
+}
+
+/* Bars grow from nothing. Width is authored inline; the script parks it at 0
+   and hands it back. */
+.js-motion .bar-fill { width: 0 !important; }
+.js-motion .bar-fill.is-in {
+  width: var(--target) !important;
+  transition: width 1.15s cubic-bezier(.22,.61,.36,1) var(--delay, 0ms);
+}
+
+/* The trend line draws itself, then the fill and points arrive. */
+.js-motion .trend .line { stroke-dashoffset: var(--len); }
+.js-motion .trend.is-in .line { transition: stroke-dashoffset 1.5s cubic-bezier(.33,.9,.4,1); stroke-dashoffset: 0; }
+.js-motion .trend .area,
+.js-motion .trend .dot { opacity: 0; }
+.js-motion .trend.is-in .area { transition: opacity .7s ease .75s; opacity: .09; }
+.js-motion .trend.is-in .dot  { transition: opacity .34s ease var(--delay, 0ms); opacity: 1; }
+
+/* Nothing animates when the reader has asked for stillness, or on paper. */
+@media (prefers-reduced-motion: reduce) {
+  .js-motion .rise, .js-motion .rise.is-in { opacity: 1; transform: none; transition: none; }
+  .js-motion .bar-fill { width: var(--target) !important; transition: none; }
+  .js-motion .trend .line { stroke-dashoffset: 0; }
+  .js-motion .trend .area { opacity: .09; }
+  .js-motion .trend .dot { opacity: 1; }
+  .js-motion .is-counting::after { animation: none; opacity: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="toolbar">
+  <strong>Design system — multi-page report</strong>
+  <nav>
+    <a href="#p1">Cover</a>
+    <a href="#p2">Contents</a>
+    <a href="#p3">Executive summary</a>
+    <a href="#p4">Performance</a>
+    <a href="#p5">Delivery</a>
+    <a href="#p6">Method</a>
+    <a href="#p7">Appendix</a>
+    <a href="#p8">Architecture</a>
+    <a href="#p9">Design reference</a>
+  </nav>
+  <button type="button" id="replay" style="margin-left:auto;background:#3A342F">Replay</button>
+  <button type="button" onclick="window.print()" style="margin-left:8px">Print / Save as PDF</button>
+</div>
+
+<div class="report">
+
+<!-- ==================================================== 1 · cover -->
+<section class="page palette-warm-paper" id="p1">
+  <div class="page-head">
+    <span class="wordmark">Zava</span>
+    <span class="page-meta">Q2 Executive Summary &middot; Exec Team</span>
+  </div>
+
+  <div class="page-body cover">
+    <div></div>
+    <div>
+      <p class="eyebrow">Quarterly business review</p>
+      <h1 class="cover-title">Q2 performance<span class="accent">and the road into Q3.</span></h1>
+      <div class="cover-rule"></div>
+      <p class="lede" style="max-width:52ch">Closed revenue, pipeline carry and delivery health across
+        eight active initiatives. Prepared for the executive team.</p>
+    </div>
+    <div class="cover-meta">
+      <div><span class="kpi-label">Period</span><span style="font-size:13px">1 Apr – 30 Jun 2026</span></div>
+      <div><span class="kpi-label">Prepared</span><span style="font-size:13px">6 August 2026</span></div>
+      <div><span class="kpi-label">Owner</span><span style="font-size:13px">Revenue Operations</span></div>
+      <div><span class="kpi-label">Classification</span><span style="font-size:13px">Internal</span></div>
+    </div>
+  </div>
+  <div class="page-foot">
+    <span>Zava &middot; Q2 executive summary</span>
+    <span>Page <span class="pageno"></span> of 9</span>
+  </div>
+</section>
+
+<!-- ==================================================== 2 · contents -->
+<section class="page palette-warm-paper" id="p2">
+  <div class="page-head">
+    <span class="wordmark">Zava</span>
+    <span class="page-meta">Q2 Executive Summary &middot; Contents</span>
+  </div>
+
+  <div class="page-body stack gap-lg">
+    <div class="section-head">
+      <p class="eyebrow">Contents</p>
+      <h2 class="section-title">What is in this report</h2>
+    </div>
+
+    <div class="toc">
+      <div class="toc-item">
+        <span class="toc-num">01</span>
+        <span class="toc-label">Executive summary
+          <span class="toc-sub">Closed revenue, pipeline carry and delivery health at a glance</span></span>
+        <span class="toc-page">3</span>
+      </div>
+      <div class="toc-item">
+        <span class="toc-num">02</span>
+        <span class="toc-label">Performance
+          <span class="toc-sub">Revenue by month, against plan, and the ten largest closed deals</span></span>
+        <span class="toc-page">4</span>
+      </div>
+      <div class="toc-item">
+        <span class="toc-num">03</span>
+        <span class="toc-label">Delivery
+          <span class="toc-sub">Initiative status, blockers and the decisions we need</span></span>
+        <span class="toc-page">5</span>
+      </div>
+      <div class="toc-item">
+        <span class="toc-num">04</span>
+        <span class="toc-label">Method and assumptions
+          <span class="toc-sub">How every figure in this report was derived</span></span>
+        <span class="toc-page">6</span>
+      </div>
+      <div class="toc-item">
+        <span class="toc-num">05</span>
+        <span class="toc-label">Appendix &mdash; how this report is produced
+          <span class="toc-sub">The reporting architecture and the design reference</span></span>
+        <span class="toc-page">7</span>
+      </div>
+    </div>
+
+    <div class="risk-callout grow" style="align-self:start">
+      <span class="risk-mark">Read first</span>
+      <div>
+        <p class="risk-title">One decision cannot wait for the next review</p>
+        <p class="risk-body">The contact centre contract has been in legal review for eleven weeks. Every
+          further week moves $84K of recognised revenue out of Q3. Page 5 sets out the ask.</p>
+      </div>
+    </div>
+  </div>
+  <div class="page-foot">
+    <span>Zava &middot; Q2 executive summary</span>
+    <span>Page <span class="pageno"></span> of 9</span>
+  </div>
+</section>
+
+<!-- ==================================================== 3 · executive summary -->
+<section class="page palette-warm-paper" id="p3">
+  <div class="page-head">
+    <span class="wordmark">Zava</span>
+    <span class="page-meta">Q2 Executive Summary &middot; Exec Team</span>
+  </div>
+
+  <div class="page-body stack gap-lg">
+
+    <!-- hero-statement -->
+    <p class="hero">Zava closed <span class="accent">$1.9M</span> in Q2 and carries
+      <span class="accent">$1.6M</span> into Q3, with delivery concentrated in
+      <span class="accent">7/8 active initiatives</span>.</p>
+
+    <!-- kpi-row -->
+    <div class="kpi-row cols-4">
+      <div class="kpi-card">
+        <span class="kpi-label">Q2 closed revenue</span>
+        <span class="kpi-value">$1.9M</span>
+        <span class="kpi-note">10 deals closed</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Open pipeline</span>
+        <span class="kpi-value">$1.6M</span>
+        <span class="kpi-note is-alert">$310K in final round</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Avg closed deal</span>
+        <span class="kpi-value">$194K</span>
+        <span class="kpi-note">North America leads at 46% of revenue</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Project health</span>
+        <span class="kpi-value">4/8</span>
+        <span class="kpi-note is-alert">2 at risk &middot; 1 blocked</span>
+      </div>
+    </div>
+
+    <!-- panel + bar-list -->
+    <div class="panel grow">
+      <div class="panel-head">
+        <h2 class="panel-title">Closed revenue by region</h2>
+        <p class="panel-sub">Q2 won deals only</p>
+      </div>
+      <div class="bar-list">
+        <div class="bar-item">
+          <span class="bar-label">North America</span>
+          <span class="bar-track"><span class="bar-fill" style="width:100%"></span></span>
+          <span class="bar-value">$874K</span>
+        </div>
+        <div class="bar-item">
+          <span class="bar-label">Western Europe</span>
+          <span class="bar-track"><span class="bar-fill" style="width:61%"></span></span>
+          <span class="bar-value">$533K</span>
+        </div>
+        <div class="bar-item">
+          <span class="bar-label">UK &amp; Ireland</span>
+          <span class="bar-track"><span class="bar-fill is-quiet" style="width:34%"></span></span>
+          <span class="bar-value">$297K</span>
+        </div>
+        <div class="bar-item">
+          <span class="bar-label">APAC</span>
+          <span class="bar-track"><span class="bar-fill is-quiet" style="width:22%"></span></span>
+          <span class="bar-value">$192K</span>
+        </div>
+      </div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-key"></span>Above quarter average</span>
+        <span class="legend-item"><span class="legend-key is-quiet"></span>Below quarter average</span>
+      </div>
+      <p class="source-note">North America and Western Europe together account for 74% of closed revenue.
+        APAC is first-year territory and is tracked against a separate ramp plan.</p>
+    </div>
+
+    <p class="note-strip">Regional split is based on the billing entity on the closed contract, not the
+      account&rsquo;s headquarters. Two multi-region agreements are attributed to the signing entity.</p>
+  </div>
+  <div class="page-foot">
+    <span>Zava &middot; Q2 executive summary</span>
+    <span>Page <span class="pageno"></span> of 9</span>
+  </div>
+</section>
+
+<!-- ==================================================== 4 · performance -->
+<section class="page palette-warm-paper" id="p4">
+  <div class="page-head">
+    <span class="wordmark">Zava</span>
+    <span class="page-meta">Q2 Executive Summary &middot; Performance</span>
+  </div>
+
+  <div class="page-body stack gap-lg">
+
+    <div class="section-head">
+      <p class="eyebrow">Performance</p>
+      <h2 class="section-title">Closed revenue by month, and where it came from</h2>
+      <p class="section-sub">Rolling six months to 30 June 2026</p>
+    </div>
+
+    <!-- compare-strip -->
+    <div class="compare-strip cols-3">
+      <div class="compare-col">
+        <p class="compare-label">Q2 vs Q1</p>
+        <p class="compare-value">+18.4%</p>
+        <p class="compare-delta is-up">$1.9M against $1.6M</p>
+      </div>
+      <div class="compare-col">
+        <p class="compare-label">Against plan</p>
+        <p class="compare-value">104%</p>
+        <p class="compare-delta is-up">$74K ahead of a $1.83M target</p>
+      </div>
+      <div class="compare-col">
+        <p class="compare-label">Win rate</p>
+        <p class="compare-value">31%</p>
+        <p class="compare-delta is-down">Down 4 points on Q1</p>
+      </div>
+    </div>
+
+    <!-- trend -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">Closed revenue by month</h2>
+        <p class="panel-sub">Won deals, excluding renewals</p>
+      </div>
+      <svg class="trend" viewBox="0 0 900 150" preserveAspectRatio="none" role="img"
+           aria-label="Closed revenue by month. January $412K, February $388K, March $801K, April $540K, May $618K, June $742K.">
+        <line class="grid" x1="0" y1="16"  x2="900" y2="16"></line>
+        <line class="grid" x1="0" y1="56"  x2="900" y2="56"></line>
+        <line class="grid" x1="0" y1="96"  x2="900" y2="96"></line>
+        <path class="area" d="M20,104 L196,110 L372,34 L548,82 L724,66 L880,40 L880,130 L20,130 Z"></path>
+        <path class="line" d="M20,104 L196,110 L372,34 L548,82 L724,66 L880,40"></path>
+        <circle class="dot" cx="20"  cy="104" r="3.5"></circle>
+        <circle class="dot" cx="196" cy="110" r="3.5"></circle>
+        <circle class="dot" cx="372" cy="34"  r="3.5"></circle>
+        <circle class="dot" cx="548" cy="82"  r="3.5"></circle>
+        <circle class="dot" cx="724" cy="66"  r="3.5"></circle>
+        <circle class="dot" cx="880" cy="40"  r="3.5"></circle>
+        <line class="axis" x1="0" y1="130" x2="900" y2="130"></line>
+        <text class="tick" x="20"  y="145" text-anchor="middle">Jan</text>
+        <text class="tick" x="196" y="145" text-anchor="middle">Feb</text>
+        <text class="tick" x="372" y="145" text-anchor="middle">Mar</text>
+        <text class="tick" x="548" y="145" text-anchor="middle">Apr</text>
+        <text class="tick" x="724" y="145" text-anchor="middle">May</text>
+        <text class="tick" x="880" y="145" text-anchor="middle">Jun</text>
+      </svg>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-key"></span>Closed revenue, won deals</span>
+        <span class="legend-item"><span class="legend-key is-quiet"></span>Renewals excluded</span>
+      </div>
+    </div>
+
+    <!-- data-table -->
+    <div class="panel grow">
+      <div class="panel-head">
+        <h2 class="panel-title">Ten largest closed deals</h2>
+        <p class="panel-sub">Q2 2026</p>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Account</th><th>Region</th><th>Segment</th><th class="num">Value</th><th class="num">Closed</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Northwind Traders</td><td>North America</td><td>Enterprise</td><td class="num">$412K</td><td class="num">18 Jun</td></tr>
+          <tr><td>Contoso Manufacturing</td><td>Western Europe</td><td>Enterprise</td><td class="num">$318K</td><td class="num">27 May</td></tr>
+          <tr><td>Fabrikam Retail</td><td>North America</td><td>Mid-market</td><td class="num">$264K</td><td class="num">11 Jun</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="3">Top three</td><td class="num">$994K</td><td class="num">52% of Q2</td></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+  <div class="page-foot">
+    <span>Zava &middot; Q2 executive summary</span>
+    <span>Page <span class="pageno"></span> of 9</span>
+  </div>
+</section>
+
+<!-- ==================================================== 5 · delivery -->
+<section class="page palette-warm-paper" id="p5">
+  <div class="page-head">
+    <span class="wordmark">Zava</span>
+    <span class="page-meta">Q2 Executive Summary &middot; Contents</span>
+  </div>
+
+  <div class="page-body stack gap-lg">
+    <div class="section-head">
+      <p class="eyebrow">Contents</p>
+      <h2 class="section-title">What is in this report</h2>
+    </div>
+
+    <div class="toc">
+      <div class="toc-item">
+        <span class="toc-num">01</span>
+        <span class="toc-label">Executive summary
+          <span class="toc-sub">Closed revenue, pipeline carry and delivery health at a glance</span></span>
+        <span class="toc-page">3</span>
+      </div>
+      <div class="toc-item">
+        <span class="toc-num">02</span>
+        <span class="toc-label">Performance
+          <span class="toc-sub">Revenue by month, against plan, and the ten largest closed deals</span></span>
+        <span class="toc-page">4</span>
+      </div>
+      <div class="toc-item">
+        <span class="toc-num">03</span>
+        <span class="toc-label">Delivery
+          <span class="toc-sub">Initiative status, blockers and the decisions we need</span></span>
+        <span class="toc-page">5</span>
+      </div>
+      <div class="toc-item">
+        <span class="toc-num">04</span>
+        <span class="toc-label">Method and assumptions
+          <span class="toc-sub">How every figure in this report was derived</span></span>
+        <span class="toc-page">6</span>
+      </div>
+      <div class="toc-item">
+        <span class="toc-num">05</span>
+        <span class="toc-label">Appendix &mdash; how this report is produced
+          <span class="toc-sub">The reporting architecture and the design reference</span></span>
+        <span class="toc-page">7</span>
+      </div>
+    </div>
+
+    <div class="risk-callout grow" style="align-self:start">
+      <span class="risk-mark">Read first</span>
+      <div>
+        <p class="risk-title">One decision cannot wait for the next review</p>
+        <p class="risk-body">The contact centre contract has been in legal review for eleven weeks. Every
+          further week moves $84K of recognised revenue out of Q3. Page 5 sets out the ask.</p>
+      </div>
+    </div>
+  </div>
+  <div class="page-foot">
+    <span>Zava &middot; Q2 executive summary</span>
+    <span>Page <span class="pageno"></span> of 9</span>
+  </div>
+</section>
+
+<!-- ==================================================== 6 · method -->
+<section class="page palette-warm-paper" id="p6">
+  <div class="page-head">
+    <span class="wordmark">Zava</span>
+    <span class="page-meta">Q2 Executive Summary &middot; Method</span>
+  </div>
+
+  <div class="page-body stack gap-lg">
+    <div class="section-head">
+      <p class="eyebrow">Method and assumptions</p>
+      <h2 class="section-title">How every figure in this report was derived</h2>
+      <p class="section-sub">Read this before quoting a number outside the executive team</p>
+    </div>
+
+    <div class="prose cols-2 grow">
+      <h3>Revenue recognition</h3>
+      <p><strong>Closed revenue</strong> is the total contract value of deals whose stage moved to
+        <em>Closed Won</em> with a close date inside the quarter. It is booking value, not recognised
+        revenue, and it is not adjusted for ramp or phasing. Where a contract spans more than one year,
+        the full committed value is counted in the quarter it was signed.</p>
+      <p>Renewals are excluded throughout unless a section says otherwise. Two multi-region agreements
+        are attributed to the signing entity rather than the account headquarters, which is why the
+        regional split does not reconcile to the account list.</p>
+
+      <h3>Pipeline</h3>
+      <p><strong>Open pipeline</strong> counts every deal not in <em>Closed Won</em> or
+        <em>Closed Lost</em> at the close of the quarter, at full value and unweighted. We deliberately
+        do not publish a probability-weighted figure at this level: the weighting model was last
+        recalibrated in 2024 and currently overstates late-stage conversion by roughly six points.</p>
+
+      <h3>Delivery health</h3>
+      <p><strong>Project health</strong> is the share of active initiatives marked <em>On Track</em> by
+        their delivery lead at the last weekly review. It is self-reported. It is useful as a trend and
+        unreliable as an absolute.</p>
+      <p><strong>Average velocity</strong> is the mean change in completion percentage across active
+        initiatives over the trailing seven days. Completed initiatives are excluded, because a finished
+        project would otherwise drag the mean towards zero and mask real movement.</p>
+
+      <h3>Known limitations</h3>
+      <ul>
+        <li>Figures are taken at 30 June and are not restated for later corrections.</li>
+        <li>One initiative changed owner mid-quarter; its early status history is incomplete.</li>
+        <li>Currency is reported as booked, with no retranslation at quarter-end rates.</li>
+      </ul>
+    </div>
+
+    <div class="risk-callout is-warn">
+      <span class="risk-mark">Caveat</span>
+      <div>
+        <p class="risk-title">Delivery health is self-reported</p>
+        <p class="risk-body">Both at-risk initiatives were marked on track in the preceding two reviews,
+          so treat the headline as a lagging indicator.</p>
+      </div>
+    </div>
+
+    <p class="source-note">Source: CRM export 30 June 2026; delivery review minutes to 24 June 2026.
+      Prepared by Revenue Operations.</p>
+  </div>
+  <div class="page-foot">
+    <span>Zava &middot; Q2 executive summary</span>
+    <span>Page <span class="pageno"></span> of 9</span>
+  </div>
+</section>
+
+<!-- ==================================================== 7 · appendix -->
+<section class="page palette-deep-ink" id="p7">
+  <div class="page-head">
+    <span class="wordmark">Zava</span>
+    <span class="page-meta">Appendix</span>
+  </div>
+
+  <div class="page-body">
+    <div class="divider">
+      <p class="divider-num">Section 05</p>
+      <h2 class="divider-title">How this report<br>is produced.</h2>
+      <p class="divider-sub">The reporting architecture, the component catalogue and the design
+        reference. Nothing in this section changes between quarters.</p>
+    </div>
+  </div>
+  <div class="page-foot">
+    <span>Zava &middot; Appendix</span>
+    <span>Page <span class="pageno"></span> of 9</span>
+  </div>
+</section>
+
+<!-- ==================================================== 8 · architecture -->
+<section class="page palette-warm-paper" id="p8">
+  <div class="page-head">
+    <span class="wordmark">Zava</span>
+    <span class="page-meta">How the reporting system works</span>
+  </div>
+
+  <div class="page-body stack gap-md">
+
+    <div>
+      <h1 class="display">One design system.<span class="accent">Four kinds of reports.</span></h1>
+      <p class="lede" style="margin-top:8px;max-width:56ch">Each skill starts with a beautiful HTML example.
+        The AI extracts the design into a reusable template, then assembles any data into the same visual
+        language — automatically, every time.</p>
+    </div>
+
+    <!-- flow-strip -->
+    <div>
+      <div class="section-head">
+        <p class="eyebrow">How it&rsquo;s built</p>
+        <h2 class="section-title">From HTML example to repeatable skill</h2>
+      </div>
+
+      <div class="flow-strip">
+        <div class="flow-step">
+          <p class="flow-eyebrow">Start</p>
+          <h3 class="flow-title">Beautiful HTML example</h3>
+          <p class="flow-desc">Designer or found template — the visual target</p>
+          <span class="badge badge-quiet">Once</span>
+        </div>
+        <div class="flow-step">
+          <p class="flow-eyebrow">Extract</p>
+          <h3 class="flow-title">AI reads the design</h3>
+          <p class="flow-desc">Pulls palette tokens, typography, component patterns</p>
+          <span class="badge badge-quiet">Once</span>
+        </div>
+        <div class="flow-step">
+          <p class="flow-eyebrow">Codify</p>
+          <h3 class="flow-title">Template + SKILL.md</h3>
+          <p class="flow-desc">CSS template file and interview instructions written once</p>
+          <span class="badge badge-quiet">Once</span>
+        </div>
+
+        <div class="flow-group is-emphasis">
+          <div class="flow-step">
+            <p class="flow-eyebrow">Every time</p>
+            <h3 class="flow-title">User sends prompt + data</h3>
+            <p class="flow-desc">A two-line prompt and a CSV file — that&rsquo;s it</p>
+            <span class="badge badge-live">Live demo</span>
+          </div>
+          <div class="flow-step">
+            <p class="flow-eyebrow">Output</p>
+            <h3 class="flow-title">JSON document</h3>
+            <p class="flow-desc">Validated data blob — the consistency layer</p>
+            <span class="badge badge-live">Live demo</span>
+          </div>
+          <div class="flow-step">
+            <p class="flow-eyebrow">Result</p>
+            <h3 class="flow-title">Self-contained HTML</h3>
+            <p class="flow-desc">No CDN, no server — opens in any browser, runs in SharePoint</p>
+            <span class="badge badge-live">Live demo</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="caption" style="margin-top:6px">The first three steps happen once when the skill is authored.
+        In the live demo you only see the last three.</p>
+    </div>
+
+    <!-- numbered-cards -->
+    <div class="grow">
+      <div class="section-head">
+        <p class="eyebrow">The architecture</p>
+        <h2 class="section-title">Three layers — only one changes per report</h2>
+      </div>
+
+      <div class="numbered-cards cols-3">
+        <div class="num-card">
+          <span class="num-badge">1</span>
+          <h3 class="num-title">Style</h3>
+          <p class="num-body">CSS custom properties define every visual decision — colour, type, spacing,
+            radius. The same four palette classes apply to all reports identically.</p>
+          <div class="inline-chips">
+            <code class="chip">palette-warm-paper</code>
+            <code class="chip">palette-deep-ink</code>
+            <code class="chip">palette-clean-white</code>
+            <code class="chip">palette-slate</code>
+          </div>
+          <p class="num-takeaway">Deterministic — same class, same output, always.</p>
+        </div>
+
+        <div class="num-card is-emphasis">
+          <span class="num-badge">2</span>
+          <h3 class="num-title">Components</h3>
+          <p class="num-body">Each skill has a catalogue of named blocks — hero sentence, KPI row,
+            trend chart, bar list, compare strip, highlights. The AI reads the data and decides which
+            blocks to use and in what order.</p>
+          <p class="num-takeaway">AI-assembled — the skill picks the right blocks for the story.</p>
+        </div>
+
+        <div class="num-card">
+          <span class="num-badge">3</span>
+          <h3 class="num-title">Data</h3>
+          <p class="num-body">Before rendering, the skill builds a validated JSON document — the
+            &ldquo;consistency layer&rdquo;. Every block, every value and every label is in the JSON.</p>
+          <p class="num-takeaway">Same JSON &rarr; same HTML. Every time. No drift.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-foot">
+    <span>Zava &middot; Reporting architecture</span>
+    <span>Page <span class="pageno"></span> of 9</span>
+  </div>
+</section>
+
+<!-- ==================================================== 9 · design reference -->
+<section class="page palette-clean-white" id="p9">
+  <div class="page-head">
+    <span class="wordmark">Zava</span>
+    <span class="page-meta">Design reference &middot; Palettes</span>
+  </div>
+
+  <div class="page-body stack gap-lg">
+    <div class="section-head">
+      <p class="eyebrow">Style layer</p>
+      <h2 class="section-title">Four palettes, one set of components</h2>
+      <p class="section-sub">Set the class on the <code class="chip">.page</code> element. Nothing else changes.</p>
+    </div>
+
+    <div class="kpi-row cols-4 grow" style="align-items:stretch">
+      <div class="palette-warm-paper panel" style="background:var(--paper);display:flex;flex-direction:column">
+        <code class="chip" style="align-self:flex-start">palette-warm-paper</code>
+        <p class="kpi-value" style="font-size:30px;color:var(--ink)">$1.9M</p>
+        <p class="kpi-note" style="color:var(--ink-muted)">Default. Warm, printed-report feel.</p>
+        <p class="kpi-note is-alert" style="color:var(--accent)">Accent &middot; C1483C</p>
+      </div>
+      <div class="palette-clean-white panel" style="background:var(--paper);display:flex;flex-direction:column">
+        <code class="chip" style="align-self:flex-start">palette-clean-white</code>
+        <p class="kpi-value" style="font-size:30px;color:var(--ink)">$1.9M</p>
+        <p class="kpi-note" style="color:var(--ink-muted)">Neutral. For dense, data-heavy pages.</p>
+        <p class="kpi-note is-alert" style="color:var(--accent)">Accent &middot; C1483C</p>
+      </div>
+      <div class="palette-deep-ink panel" style="background:var(--paper);display:flex;flex-direction:column;border-color:#3A342F">
+        <code class="chip" style="align-self:flex-start;background:#342F2B;border-color:#3A342F;color:#B9AFA3">palette-deep-ink</code>
+        <p class="kpi-value" style="font-size:30px;color:var(--ink)">$1.9M</p>
+        <p class="kpi-note" style="color:var(--ink-muted)">Inverse. Covers and section dividers.</p>
+        <p class="kpi-note is-alert" style="color:var(--accent)">Accent &middot; E8705F</p>
+      </div>
+      <div class="palette-slate panel" style="background:var(--paper);display:flex;flex-direction:column">
+        <code class="chip" style="align-self:flex-start">palette-slate</code>
+        <p class="kpi-value" style="font-size:30px;color:var(--ink)">$1.9M</p>
+        <p class="kpi-note" style="color:var(--ink-muted)">Cool. Operational and technical reports.</p>
+        <p class="kpi-note is-alert" style="color:var(--accent)">Accent &middot; C1483C</p>
+      </div>
+    </div>
+
+    <p class="note-strip">Component classes never carry colour of their own. Every colour resolves through a
+      custom property, so a palette swap is a one-word change and can never produce an off-brand result.
+      All body and label colours in every palette meet WCAG AA against their own surface.</p>
+  </div>
+  <div class="page-foot">
+    <span>Zava &middot; Design reference</span>
+    <span>Page <span class="pageno"></span> of 9</span>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ===========================================================================
+   MOTION ENGINE — inline, dependency-free, progressive enhancement.
+
+   Design rules, in order of importance:
+     1. The HTML already contains every final value as real text. This script
+        reads that text, replays the arrival, then writes the identical string
+        back. It can never invent, round or corrupt a figure.
+     2. If scripting is off, the report is complete. Nothing here is required.
+     3. Print always shows settled values. Counting stops on beforeprint.
+     4. prefers-reduced-motion is honoured: values are set, not counted.
+     5. Animation is triggered per page as it scrolls into view, so a nine-page
+        report does not burn its whole performance on load.
+   =========================================================================== */
+(function () {
+  'use strict';
+
+  var root = document.documentElement;
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Split "$1.9M" into "$" / 1.9 / "M", "4/8" into "" / 4 / "/8".
+  var NUM = /-?\d[\d,]*\.?\d*/;
+  function parse(text) {
+    var m = NUM.exec(text);
+    if (!m) return null;
+    var raw = m[0];
+    var decimals = (raw.split('.')[1] || '').length;
+    return {
+      prefix: text.slice(0, m.index),
+      suffix: text.slice(m.index + raw.length),
+      value: parseFloat(raw.replace(/,/g, '')),
+      decimals: decimals,
+      grouped: raw.indexOf(',') > -1,
+      original: text
+    };
+  }
+
+  function format(spec, n) {
+    var body = spec.decimals
+      ? n.toFixed(spec.decimals)
+      : (spec.grouped ? Math.round(n).toLocaleString('en-GB') : String(Math.round(n)));
+    return spec.prefix + body + spec.suffix;
+  }
+
+  var running = [];
+
+  function count(el, spec, delay) {
+    var duration = 1500;
+    var start = null;
+    el.classList.add('is-counting');
+
+    function frame(now) {
+      if (start === null) start = now;
+      var t = (now - start - delay) / duration;
+      if (t < 0) { el.__raf = requestAnimationFrame(frame); return; }
+      if (t >= 1) {
+        el.textContent = spec.original;      // exact original string, always
+        el.classList.remove('is-counting');
+        el.__raf = null;
+        return;
+      }
+      // Ease-out quint: fast arrival, long graceful settle.
+      var eased = 1 - Math.pow(1 - t, 5);
+      el.textContent = format(spec, spec.value * eased);
+      el.__raf = requestAnimationFrame(frame);
+    }
+    el.__raf = requestAnimationFrame(frame);
+    running.push(el);
+  }
+
+  function settleAll() {
+    running.forEach(function (el) {
+      if (el.__raf) { cancelAnimationFrame(el.__raf); el.__raf = null; }
+      if (el.__spec) el.textContent = el.__spec.original;
+      el.classList.remove('is-counting');
+    });
+    running.length = 0;
+  }
+
+  // ---------------------------------------------------------------- prepare
+  var counters = [].slice.call(document.querySelectorAll('.kpi-value, .compare-value, .count-up'));
+  counters.forEach(function (el) {
+    var spec = parse(el.textContent.trim());
+    if (spec) { el.__spec = spec; el.classList.add('rise'); }
+  });
+
+  // Blocks that rise into place.
+  var risers = [].slice.call(document.querySelectorAll(
+    '.kpi-card, .num-card, .flow-step, .highlight-card, .panel, .compare-col, .risk-callout, .toc-item, .status-item'
+  ));
+  risers.forEach(function (el) { el.classList.add('rise'); });
+
+  // Bars: park the authored width, hand it back on reveal.
+  var bars = [].slice.call(document.querySelectorAll('.bar-fill'));
+  bars.forEach(function (el) {
+    el.style.setProperty('--target', el.style.width || '0%');
+  });
+
+  // Trend lines: measure the path so it can draw itself.
+  var trends = [].slice.call(document.querySelectorAll('.trend'));
+  trends.forEach(function (svg) {
+    var line = svg.querySelector('.line');
+    if (!line || !line.getTotalLength) return;
+    var len = Math.ceil(line.getTotalLength());
+    line.style.strokeDasharray = len;
+    svg.style.setProperty('--len', len);
+    [].slice.call(svg.querySelectorAll('.dot')).forEach(function (d, i) {
+      d.style.setProperty('--delay', (900 + i * 90) + 'ms');
+    });
+  });
+
+  root.classList.add('js-motion');
+  document.body.classList.add('js-motion');
+
+  // ---------------------------------------------------------------- reveal
+  function reveal(page) {
+    if (page.__revealed) return;
+    page.__revealed = true;
+
+    var i = 0;
+    [].slice.call(page.querySelectorAll('.rise')).forEach(function (el) {
+      var delay = Math.min(i * 55, 480);
+      el.style.setProperty('--delay', delay + 'ms');
+      el.classList.add('is-in');
+      if (el.__spec && !still) count(el, el.__spec, delay);
+      i++;
+    });
+
+    [].slice.call(page.querySelectorAll('.bar-fill')).forEach(function (el, n) {
+      el.style.setProperty('--delay', (220 + n * 110) + 'ms');
+      el.classList.add('is-in');
+    });
+
+    [].slice.call(page.querySelectorAll('.trend')).forEach(function (el) {
+      el.classList.add('is-in');
+    });
+  }
+
+  var pages = [].slice.call(document.querySelectorAll('.page'));
+
+  if (still || !('IntersectionObserver' in window)) {
+    pages.forEach(reveal);
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { reveal(e.target); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.18 });
+    pages.forEach(function (p) { io.observe(p); });
+  }
+
+  // ---------------------------------------------------------------- print
+  window.addEventListener('beforeprint', function () {
+    pages.forEach(reveal);
+    settleAll();
+  });
+  if (window.matchMedia) {
+    var mq = window.matchMedia('print');
+    var onChange = function (e) { if (e.matches) { pages.forEach(reveal); settleAll(); } };
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+  }
+
+  // Replay control, screen only.
+  var replay = document.getElementById('replay');
+  if (replay) {
+    replay.addEventListener('click', function () {
+      settleAll();
+      pages.forEach(function (p) {
+        p.__revealed = false;
+        [].slice.call(p.querySelectorAll('.rise')).forEach(function (el) { el.classList.remove('is-in'); });
+        [].slice.call(p.querySelectorAll('.bar-fill')).forEach(function (el) { el.classList.remove('is-in'); });
+        [].slice.call(p.querySelectorAll('.trend')).forEach(function (el) { el.classList.remove('is-in'); });
+      });
+      // Let the browser paint the reset state before replaying.
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          var top = window.scrollY;
+          pages.forEach(function (p) {
+            var r = p.getBoundingClientRect();
+            if (r.bottom > 0 && r.top < window.innerHeight) reveal(p);
+          });
+          void top;
+        });
+      });
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/report.schema.json",
+  "title": "Multi-page executive report",
+  "description": "The consistency layer. Content, block choice and palette token only. Deliberately contains no geometry, no colours and no pixel values, because those live in the frozen stylesheet. Same JSON in, same HTML out.",
+  "type": "object",
+  "required": ["meta", "pages"],
+  "additionalProperties": false,
+
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["wordmark", "title", "period"],
+      "additionalProperties": false,
+      "properties": {
+        "wordmark":       { "type": "string", "description": "Organisation name in the running head" },
+        "title":          { "type": "string" },
+        "subtitle":       { "type": "string" },
+        "period":         { "type": "string", "description": "Human readable, e.g. 1 Apr - 30 Jun 2026" },
+        "prepared":       { "type": "string" },
+        "owner":          { "type": "string" },
+        "classification": { "type": "string" },
+        "runningHead":    { "type": "string", "description": "Right side of the running head. Defaults to the title." },
+        "palette": {
+          "type": "string",
+          "enum": ["palette-warm-paper", "palette-clean-white", "palette-deep-ink", "palette-slate"],
+          "default": "palette-warm-paper"
+        }
+      }
+    },
+
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Pages are explicit because each one is a fixed A4 sheet and content must be authored to fit. The renderer never reflows across pages.",
+      "items": { "$ref": "#/$defs/page" }
+    }
+  },
+
+  "$defs": {
+
+    "page": {
+      "type": "object",
+      "required": ["blocks"],
+      "additionalProperties": false,
+      "properties": {
+        "id":          { "type": "string", "pattern": "^p[0-9]+$" },
+        "navLabel":    { "type": "string", "description": "Label in the screen-only nav and the contents page" },
+        "runningHead": { "type": "string" },
+        "runningFoot": { "type": "string" },
+        "palette": {
+          "type": "string",
+          "enum": ["palette-warm-paper", "palette-clean-white", "palette-deep-ink", "palette-slate"]
+        },
+        "blocks": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "description": "Three to five reads best. Two looks thin, seven looks like a dashboard.",
+          "items": { "$ref": "#/$defs/block" }
+        }
+      }
+    },
+
+    "block": {
+      "type": "object",
+      "required": ["type"],
+      "discriminator": { "propertyName": "type" },
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "cover", "toc", "divider",
+            "hero", "display", "sectionHead",
+            "kpiRow", "barList", "trend", "compareStrip", "statusGrid", "dataTable",
+            "flowStrip", "numberedCards", "highlights",
+            "prose", "riskCallout", "pullQuote", "noteStrip", "sourceNote"
+          ]
+        },
+        "grow": { "type": "boolean", "description": "Absorb slack so the page does not end in a void" }
+      },
+
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "hero" } } },
+          "then": {
+            "required": ["text"],
+            "properties": {
+              "text": {
+                "type": "string",
+                "description": "One sentence. Wrap figures that matter in {{ }} to render them in the accent colour, e.g. 'Zava closed {{$1.9M}} in Q2'."
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "kpiRow" } } },
+          "then": {
+            "required": ["cards"],
+            "properties": {
+              "cards": {
+                "type": "array", "minItems": 2, "maxItems": 4,
+                "items": {
+                  "type": "object",
+                  "required": ["label", "value"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string" },
+                    "value": { "type": "string", "description": "Final display string, e.g. '$1.9M', '4/8', '31%'. The motion engine counts up to it." },
+                    "note":  { "type": "string" },
+                    "alert": { "type": "boolean", "description": "Render the note in red. Risk only, never good news." },
+                    "delta": { "type": "string" },
+                    "deltaDirection": { "type": "string", "enum": ["up", "down"] }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "barList" } } },
+          "then": {
+            "required": ["items"],
+            "properties": {
+              "title": { "type": "string" },
+              "subtitle": { "type": "string" },
+              "items": {
+                "type": "array", "minItems": 2, "maxItems": 8,
+                "items": {
+                  "type": "object",
+                  "required": ["label", "value", "percent"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "label":   { "type": "string" },
+                    "value":   { "type": "string" },
+                    "percent": { "type": "number", "minimum": 0, "maximum": 100, "description": "Share of the largest item, not of the total" },
+                    "quiet":   { "type": "boolean", "description": "Below-average styling" }
+                  }
+                }
+              },
+              "legend": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["label"],
+                  "additionalProperties": false,
+                  "properties": { "label": { "type": "string" }, "quiet": { "type": "boolean" } }
+                }
+              },
+              "sourceNote": { "type": "string" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "trend" } } },
+          "then": {
+            "required": ["points"],
+            "properties": {
+              "title": { "type": "string" },
+              "subtitle": { "type": "string" },
+              "points": {
+                "type": "array", "minItems": 3, "maxItems": 12,
+                "items": {
+                  "type": "object",
+                  "required": ["label", "value"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string" },
+                    "value": { "type": "number" },
+                    "display": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "statusGrid" } } },
+          "then": {
+            "required": ["items"],
+            "properties": {
+              "title": { "type": "string" },
+              "subtitle": { "type": "string" },
+              "items": {
+                "type": "array", "minItems": 2, "maxItems": 14,
+                "items": {
+                  "type": "object",
+                  "required": ["label", "state"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string" },
+                    "state": { "type": "string", "enum": ["ok", "warn", "risk"] },
+                    "note":  { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "riskCallout" } } },
+          "then": {
+            "required": ["title", "body"],
+            "properties": {
+              "mark":  { "type": "string", "default": "Read first" },
+              "title": { "type": "string" },
+              "body":  { "type": "string" },
+              "tone":  { "type": "string", "enum": ["risk", "warn"], "default": "risk" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "prose" } } },
+          "then": {
+            "required": ["sections"],
+            "properties": {
+              "columns": { "type": "integer", "enum": [1, 2], "default": 2 },
+              "sections": {
+                "type": "array", "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": ["body"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "heading": { "type": "string" },
+                    "body":    { "type": "array", "items": { "type": "string" } },
+                    "list":    { "type": "array", "items": { "type": "string" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

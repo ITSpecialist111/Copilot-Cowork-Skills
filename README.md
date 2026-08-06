@@ -20,6 +20,7 @@ This repo is a library of such skill packages, organised by theme.
 |---|---|---|
 | [`skill-factory/`](skill-factory/) | A meta-skill: a skill that **creates other skills** to a rigorous quality bar (frontmatter, tiering, trigger phrases, cross-linking, post-write verification). | Operational |
 | [`rfp-agent-swarm/`](rfp-agent-swarm/) | A seven-skill agent swarm that takes an inbound RFP from first ingestion through to a fully-assembled, reviewed, and gate-approved submission package. See the [overview](rfp-agent-swarm/README.md). | Research |
+| [`executive-report-design-system/`](executive-report-design-system/) | A design system as a skill: produces multi-page, print-ready HTML executive reports that look designed rather than generated, by removing the model's authority over layout and giving it a closed component catalogue instead. See the [overview](executive-report-design-system/README.md). | Research |
 
 ---
 
@@ -32,11 +33,11 @@ This library is organised around a handful of hypotheses I want to prove (or dis
 3. **Humans stay in the loop, by design.** Every skill in every chain has explicit *gates* and *review steps* — AI drafts, humans approve. Confidence tiering, provenance, and structured correction capture are first-class concerns, not afterthoughts.
 4. **The artefacts are portable.** A skill is just Markdown plus a pinch of Python and static templates. Anyone with Cowork access can lift a skill package out of this repo, drop it into their own OneDrive, and adapt it.
 5. **Learning loops compound.** Every reviewer correction should make the next run cheaper. Skills here log corrections in a shared schema so the knowledge base genuinely improves over time.
+6. **Constraint beats instruction.** Asking a model to "avoid a generic AI look" fails, because the request travels the same channel that produced the look. Removing the choice — a frozen stylesheet, a closed component catalogue, a validated data contract — makes output quality a property of the design rather than of the prompt. `executive-report-design-system` is the test of this.
 
 Future themes I plan to add as separate folders:
 
 - **Sales & account planning** — account research, QBR prep, opportunity scoring
-- **Legal redlining** — clause extraction, playbook-based markups, escalation
 - **Meeting lifecycle** — prep → run → follow-up with decisions logged
 - **Deep research** — structured literature reviews with citation hygiene
 - **Internal comms** — exec briefings, all-hands drafts, change management
