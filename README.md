@@ -21,6 +21,7 @@ This repo is a library of such skill packages, organised by theme.
 | [`skill-factory/`](skill-factory/) | A meta-skill: a skill that **creates other skills** to a rigorous quality bar (frontmatter, tiering, trigger phrases, cross-linking, post-write verification). | Operational |
 | [`rfp-agent-swarm/`](rfp-agent-swarm/) | A seven-skill agent swarm that takes an inbound RFP from first ingestion through to a fully-assembled, reviewed, and gate-approved submission package. See the [overview](rfp-agent-swarm/README.md). | Research |
 | [`executive-report-design-system/`](executive-report-design-system/) | A design system as a skill: produces multi-page, print-ready HTML executive reports that look designed rather than generated, by removing the model's authority over layout and giving it a closed component catalogue instead. See the [overview](executive-report-design-system/README.md). | Research |
+| [`fusion-harness/`](fusion-harness/) | Runs one question across several **different models** in parallel as named slots, then reports whether their agreement was actually earned. Includes measured evidence that Cowork's sub-agents really do execute on different models. See the [overview](fusion-harness/README.md). | Research |
 
 ---
 
@@ -34,6 +35,7 @@ This library is organised around a handful of hypotheses I want to prove (or dis
 4. **The artefacts are portable.** A skill is just Markdown plus a pinch of Python and static templates. Anyone with Cowork access can lift a skill package out of this repo, drop it into their own OneDrive, and adapt it.
 5. **Learning loops compound.** Every reviewer correction should make the next run cheaper. Skills here log corrections in a shared schema so the knowledge base genuinely improves over time.
 6. **Constraint beats instruction.** Asking a model to "avoid a generic AI look" fails, because the request travels the same channel that produced the look. Removing the choice — a frozen stylesheet, a closed component catalogue, a validated data contract — makes output quality a property of the design rather than of the prompt. `executive-report-design-system` is the test of this.
+7. **Agreement between models is only evidence if it was earned.** Multi-model ensembles are easy to fake and easy to over-read: three personas on one model will agree cheaply, and even three real models drawn from two vendors are not three independent confirmations. A skill can be made to measure that distinction and disclose it rather than let consensus flatter the reader. `fusion-harness` is the test of this.
 
 Future themes I plan to add as separate folders:
 
@@ -74,4 +76,4 @@ This is a personal library, but thoughtful issues and pull requests are welcome 
 
 ---
 
-*Last updated: April 2026.*
+*Last updated: September 2026.*
