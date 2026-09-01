@@ -14,7 +14,8 @@ license: MIT
 metadata:
   author: ITSpecialist111
   version: "1.0"
-  upstream: https://github.com/ITSpecialist111/FusionHarness
+  upstream: https://github.com/ITSpecialist111/Copilot-Cowork-Skills
+  origin: https://github.com/disler/fusion-harness
 ---
 
 # Fusion Harness
