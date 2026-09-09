@@ -2,7 +2,9 @@
 
 Cowork can dispatch **sub-agents with a per-dispatch model override**. That makes real
 cross-model fan-out possible inside a single session — the thing the pi harness was actually
-buying. Verified live on 2026-08-30; see the evidence rule below.
+buying. Dispatch was verified live on 2026-08-30; the picker inventory was refreshed from
+[Microsoft's Cowork model documentation](https://learn.microsoft.com/microsoft-365/copilot/cowork/cowork-models)
+on 2026-09-09. See the evidence rule below.
 
 ## What the platform can and cannot do
 
@@ -13,8 +15,12 @@ buying. Verified live on 2026-08-30; see the evidence rule below.
 | The dispatch result carries a **runtime session record** naming the executing model | This is your evidence. Record it verbatim |
 | **Effort is settable per dispatch** | Name it per slot. A run at Extra High / Extra High / Medium was applied and honoured |
 | The compose-box picker governs **only the main conversation** | Pinning the session does not constrain the slots |
-| The picker is grouped by vendor: **GPT** (OpenAI) → GPT 5.6 Sol, GPT 5.6 Terra, GPT 5.5 · **Claude** (Anthropic) → Opus 5, Sonnet 5, Fable 5 | Six models, two vendors |
-| **Fable 5 requires data retention** — prompts and responses are kept by the model provider | Say so before recommending it, every time. Offer Opus 5 instead |
+| The picker is grouped by vendor: **GPT** (OpenAI) → GPT 5.5, GPT 5.6 Sol, GPT 5.6 Terra, GPT 6 Astra · **Claude** (Anthropic) → Opus 5, Claude Sonnet 5, Claude Fable 5.1 | Seven models, two vendors |
+| **Fable 5.1 terms vary by tenant eligibility** | Inspect the picker/banner. It may run under Microsoft's DPA with no Anthropic retention, or as a retention variant under additional terms |
+
+Microsoft documents both Fable arrangements in
+[Anthropic models in Microsoft Online Services](https://learn.microsoft.com/microsoft-365/copilot/connect-to-ai-subprocessor#anthropic-fable-class-models).
+Do not infer the tenant's arrangement from the model name alone.
 
 The model list is per-tenant. If a named model is missing, say so and substitute rather than
 asserting a model was used.
@@ -22,13 +28,17 @@ asserting a model was used.
 ## The evidence rule
 
 After every slot returns, read the **platform's runtime session record** for that dispatch and
-report the executing model verbatim, in `provider/id` form. Verified values look like:
+report the executing model verbatim, in `provider/id` form. Historical values from the
+2026-08-30 run looked like:
 
 ```
 rune → model: anthropic/fable-5
 sol  → model: substrate-responses/gpt-5.6-sol
 nova → model: anthropic/sonnet-5
 ```
+
+Those are evidence from the old roster, not identifiers to reuse for Fable 5.1 or GPT 6 Astra.
+Record the current runtime values rather than guessing their provider IDs from picker labels.
 
 **Never use a model's self-report as evidence.** Measured in the same run: the slot on Fable 5
 identified itself as "Claude Sonnet 4.5" — right vendor, wrong model — and the other two said
@@ -68,22 +78,22 @@ This reproduces the upstream fusion stack model for model.
 
 | Slot | Role | Model | Effort | Why |
 | --- | --- | --- | --- | --- |
-| `rune` | ARCHITECT | Claude → **Fable 5** | Extra High | The toughest-problem slot. **Retention applies** — offer Opus 5 instead |
-| `sol` | BUILDER (primary) | GPT → **GPT 5.6 Sol** | Extra High | Different vendor, strong on concrete execution |
+| `rune` | ARCHITECT | Claude → **Fable 5.1** | Extra High | Most advanced ambitious-work slot. Check and disclose the tenant's retention terms |
+| `sol` | BUILDER (primary) | GPT → **GPT 6 Astra** | Extra High | Latest tough-problem model, strong on concrete execution |
 | `nova` | BUILDER | GPT → **GPT 5.6 Terra** | Medium | The fast, cheap challenger |
 
-That is `anthropic/claude-fable-5` + `openai/gpt-5.6-sol` + `openai/gpt-5.6-terra` at
-`xhigh`/`xhigh`/`medium` — the same trio as `.pi/fusion-harness/model-stack-trio.yaml`, with
-Cowork's **Extra High** standing in for `xhigh`.
+Request the picker labels above exactly. Do not infer provider IDs: after each dispatch, record
+the actual runtime model metadata and compare it with the requested label. Cowork's **Extra High**
+stands in for Pi's `xhigh` on the first two slots.
 
 Substitutions:
 
-- **Opus 5** for `rune` whenever the user declines Fable 5's retention. This is the safe default
-  for anything touching real tenant data.
-- **Sonnet 5** and **GPT 5.5** as slots 4 and 5. The roster caps at five, so with six models
-  available one is always left out — name which, rather than quietly dropping it.
+- **Opus 5** for `rune` whenever the available Fable 5.1 variant requires retention and the user
+  declines it.
+- **Claude Sonnet 5** and **GPT 5.6 Sol** as slots 4 and 5. The roster caps at five, so with seven
+  models available at least two are left out — name them rather than quietly dropping them.
 
-**Be honest about the ceiling.** Six models, two houses: OpenAI and Anthropic. The pi stack's third
+**Be honest about the ceiling.** Seven models, two houses: OpenAI and Anthropic. The Pi stack's third
 vendor is Gemini and there is no Gemini here. A three-slot Cowork run gives a different *model* in
 every slot, not a different *house* in every slot. Say that rather than implying three independent
 vendors — the whole point of recording the badge is that the claim stays checkable.
@@ -91,7 +101,7 @@ vendors — the whole point of recording the badge is that the claim stays check
 ## Running a model-slot protocol
 
 **1. Quote the cost and the roster, then proceed.** Print the slot table — slot, model, phase —
-before dispatching. Warn about Fable 5 retention if it is in the stack.
+before dispatching. For Fable 5.1, inspect and disclose the retention state shown by the product.
 
 **2. Write the run artifacts first.** `prompt.md` and `roster.md` before any slot speaks.
 

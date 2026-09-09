@@ -13,7 +13,6 @@ description: >-
 license: MIT
 metadata:
   author: ITSpecialist111
-  version: "1.0"
   upstream: https://github.com/ITSpecialist111/Copilot-Cowork-Skills
   origin: https://github.com/disler/fusion-harness
 ---
@@ -36,9 +35,9 @@ available. They differ in who reads whom, and in who is allowed to write.
 
 Model-slot mode is real fan-out — sub-agents run in separate contexts on separately named models,
 so independence is structural and cross-model agreement becomes actual evidence. Read
-`references/model-slots.md` before offering it: it carries the verified model ids, the per-slot
-effort levels, and the rule that only the platform's runtime record counts as proof of which model
-ran.
+`references/model-slots.md` before offering it: it carries the current picker labels, the per-slot
+effort levels, historical runtime evidence, and the rule that only the current platform runtime
+record counts as proof of which model ran.
 
 In single-session mode every persona is the same model, so agreement is cheap and disagreement has
 to be earned. That is why the divergence floor (C7) is mandatory there. Never present a
@@ -66,14 +65,15 @@ charter verbatim, and a charter that is paraphrased stops producing a distinct o
 
 | Slot | Role | Charter in one line | Model in slot mode |
 | --- | --- | --- | --- |
-| `rune` | ARCHITECT | Invariants, failure modes, whole-life cost. Willing to answer "do not build this." | Fable 5, effort Extra High |
-| `sol` | BUILDER (primary) | The shippable next step, grounded in what the artifacts actually say. | GPT 5.6 Sol, effort Extra High |
+| `rune` | ARCHITECT | Invariants, failure modes, whole-life cost. Willing to answer "do not build this." | Claude Fable 5.1, effort Extra High |
+| `sol` | BUILDER (primary) | The shippable next step, grounded in what the artifacts actually say. | GPT 6 Astra, effort Extra High |
 | `nova` | BUILDER | The counterexample, the cheaper path, the thing the other two assumed. | GPT 5.6 Terra, effort Medium |
 
-Fable 5 retains prompts and responses with the model provider. Say so before recommending it and
-offer Opus 5 instead. Two to five slots are allowed, exactly one `ARCHITECT` and exactly one
-primary. The user may add or swap slots for a run; honour it, restate the roster you used, and
-record it in the run artifacts.
+Fable 5.1 can be offered under Microsoft's DPA with no Anthropic retention for eligible tenants,
+or as a data-retention variant under additional terms. Inspect the picker/banner before dispatch,
+state which variant is available, and offer Opus 5 if the user declines a retention variant. Two
+to five slots are allowed, exactly one `ARCHITECT` and exactly one primary. The user may add or
+swap slots for a run; honour it, restate the roster you used, and record it in the run artifacts.
 
 ## Non-negotiable rules
 
