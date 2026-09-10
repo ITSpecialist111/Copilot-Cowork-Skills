@@ -27,6 +27,20 @@ This repo is a library of such skill packages, organised by theme.
 
 ## What I'm Trying to Achieve
 
+### Latest Test: A Visible Fusion Run
+
+The [Diamond Fusion Live Board report](fusion-harness/Screenshots/live-board/README.md) shows
+three native Cowork sources, an attributed synthesis, and three source reviews in a personal
+MCP App test on 2026-09-09. It includes three redacted screenshots and a sanitized final result.
+
+![Fusion board in Cowork receiving GPT 6 Astra's direct source findings](fusion-harness/Screenshots/live-board/02-live-source-findings.png)
+
+**The limit is visible too:** Sol reported directly while working; approval gates blocked Rune
+and Nova, whose actual results were relayed afterward. The board is a separate prototype, not a
+hosted service installed by the skill. This remains personal research, not a Microsoft product.
+
+### Research Questions
+
 This library is organised around a handful of hypotheses I want to prove (or disprove) about Cowork custom skills:
 
 1. **Meta-authoring works.** A single well-designed skill (`skill-factory`) can reliably author other skills to a published quality bar, reducing the cost of building new agentic workflows from days to minutes.

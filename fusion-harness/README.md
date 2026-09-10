@@ -9,7 +9,23 @@ answer. That is what this skill adds.
 
 Ported from [disler/fusion-harness](https://github.com/disler/fusion-harness), which ran the same
 protocols outside Microsoft 365 against five provider APIs. This version is pure Cowork: a `SKILL.md`
-and nine reference files. No MCP server, no local runtime, nothing to install.
+and nine reference files. The core skill needs no MCP server or local runtime. The separate
+live-board experiment below adds an MCP App visualization, not a new dependency for this skill.
+
+---
+
+## See the Fusion Pattern
+
+The [Diamond live-board test report](Screenshots/live-board/README.md) documents a real synthetic
+run in standalone Edge on 2026-09-09. Native Cowork performed the work; the MCP App displayed
+observable source findings, runtime attribution, synthesis, and dissent.
+
+![Live MCP board in Cowork displaying GPT 6 Astra's findings](Screenshots/live-board/02-live-source-findings.png)
+
+Three sources, one synthesis, and three reviews completed. **Only Sol reported directly while
+working.** Approval gates blocked Rune and Nova, so their findings were truthfully relayed by the
+coordinator. The report includes the completed state, remaining risks, screenshot limitations,
+and what must change before this becomes a smooth simultaneous live demonstration.
 
 ---
 
@@ -30,7 +46,7 @@ From a verified run, unprompted:
 > "Consensus — and it is earned... though note it's two houses, not three, so it isn't fully
 > independent triangulation."
 
-It had worked out on its own that Cowork offers six models from only two vendors, so three slots
+In that August 2026 run it identified six available models from two vendors, so three slots
 gives you a different *model* each but not a different *vendor* each.
 
 ---
@@ -51,7 +67,7 @@ fusion-harness/
 │   ├── protocol-auto-validate.md  gate first, build second, failures fed back verbatim
 │   └── artifacts.md            run folder layout and summary.md schema
 ├── scripts/build-skill-zip.ps1 validates against the documented limits, then packages
-├── Screenshots/                evidence from the verified runs
+├── Screenshots/                evidence from the verified runs, including live-board/
 └── Cowork-multi-model-findings.pdf   the full write-up, 10 pages
 ```
 
@@ -75,16 +91,18 @@ model, so C7 is mandatory: agreement is cheap and the skill must say so.
 
 | Slot | Role | Model | Effort |
 | --- | --- | --- | --- |
-| `rune` | ARCHITECT | Claude → **Fable 5** | Extra High |
-| `sol` | BUILDER (primary) | GPT → **GPT 5.6 Sol** | Extra High |
+| `rune` | ARCHITECT | Claude → **Fable 5.1** | Extra High |
+| `sol` | BUILDER (primary) | GPT → **GPT 6 Astra** | Extra High |
 | `nova` | BUILDER | GPT → **GPT 5.6 Terra** | Medium |
 
-**Fable 5 retains prompts and responses with the model provider.** The skill is required to say so
-before recommending it, and to offer Opus 5 instead. Substitutes: Opus 5 for `rune`, then Sonnet 5
-and GPT 5.5 as slots 4 and 5.
+**Fable 5.1 terms depend on tenant eligibility.** Check the product's retention disclosure rather
+than assuming all Fable variants have the same terms. Offer Opus 5 if the user declines a retention
+variant. See [model bindings and current policy references](references/model-slots.md).
+Claude Sonnet 5 and GPT 5.6 Sol are the optional fourth and fifth slots.
 
-Six models, two vendors. There is no Gemini in Cowork, so a three-slot run gives a different model
-per slot, not a different vendor per slot. The skill says that rather than implying otherwise.
+The September inventory lists seven models from two vendors; availability is tenant-dependent.
+This roster has no Gemini, so three slots are not three independent vendors. The live-board test
+requested Medium effort for all sources to bound the test; that is not a change to the skill defaults.
 
 ---
 
@@ -134,9 +152,11 @@ body: the description is the only part Cowork reads when deciding.
 
 ---
 
-## Evidence
+## Evidence from August 2026
 
-Cowork's multi-model claim was tested rather than assumed. Two independent instruments, agreeing.
+The earlier model roster was tested with two instruments. These records are historical; the
+separate [September live-board report](Screenshots/live-board/README.md) describes the newer roster
+and its narrower attribution evidence. No new Purview validation is claimed for that test.
 
 **The platform's own session record** for one run:
 

@@ -1,0 +1,87 @@
+{
+  "testDate": "2026-09-09",
+  "environment": "Personal Copilot Cowork plugin in a test tenant, standalone Microsoft Edge",
+  "syntheticOnly": true,
+  "evidenceType": "Selected fields from a captured real widget status response, not independent model attestation",
+  "phase": "complete",
+  "eventCount": 18,
+  "sources": [
+    {
+      "slot": "rune",
+      "requestedModel": "Claude Fable 5.1",
+      "runtimeModelReportedByCoordinator": "anthropic/claude-fable-5-1",
+      "attributionSource": "Platform subagent status metadata returned by read_agent for agent rune-architect (model field). Not a model self-report.",
+      "status": "complete",
+      "delivery": "coordinator-relay",
+      "findings": [
+        "Relayed after the fact, not a live milestone. Rune: (1) E3 sets two invariants - no rollback and no engineering cover for ~63 hours - so any Friday migration (required for external activation per E4) creates an irreversible failure mode with no operator; E1's 240 passing tests reduce but do not eliminate that risk. (2) E2's penalty attaches to missing acceptance, but E5 accepts a supervised Friday demonstration penalty-free, so the safe plan and the compliant plan coincide."
+      ],
+      "conclusion": "Relayed conclusion (rune): Run a Friday supervised demonstration via the feature flag on the five internal accounts (E4, E5) with no migration Friday; run the irreversible migration and external activation Monday 09:00 or later when engineering is staffed (E3). This satisfies acceptance with zero penalty (E5 removes E2's pressure) and avoids the single irreversible, unsupervised failure mode. E1 supports readiness but does not justify an unrecoverable action without coverage. Uncertainty: E5's supervised-demonstration sign-off mechanics are unspecified, and E3's no-rollback constraint still applies on Monday - staffing mitigates but does not remove it. Child-direct reporting was denied by a pending-approval block (REPORTING_UNAVAILABLE).",
+      "review": {
+        "verdict": "accept",
+        "note": "The fused decision preserves the E3 irreversibility/no-cover invariant, correctly uses E5 to neutralise E2, and carries forward the unresolved points on acceptance mechanics and Monday migration fallback."
+      }
+    },
+    {
+      "slot": "sol",
+      "requestedModel": "GPT 6 Astra",
+      "runtimeModelReportedByCoordinator": "substrate-responses/gpt-6-astra",
+      "attributionSource": "Platform subagent status metadata returned by read_agent for agent sol-builder (model field). Not a model self-report.",
+      "status": "complete",
+      "delivery": "child-direct",
+      "findings": [
+        "E2/E5: Friday acceptance is required, but a supervised Friday demonstration followed by production activation on the next staffed business day satisfies the contract without the 18,000-credit penalty.",
+        "E1/E3/E4: The 240 passed functional tests support demonstrating the candidate, not proof of migration safety. Five internal accounts can demonstrate it without migration; defer irreversible external activation until engineering support returns."
+      ],
+      "conclusion": "Choose the E5 staged delivery. Arrange a supervised Friday demonstration before 18:00 using the E4 five-internal-account flag; keep external access disabled and perform no migration. Record Friday acceptance. Prepare the migration checklist, named engineering coverage, verification checks and forward-recovery procedure, without claiming rollback is possible. On the next staffed business day, at or after Monday 09:00 when coverage is confirmed, validate readiness, execute the migration under supervision, verify outcomes and enable external access with monitoring. This meets the stated contract without penalty while avoiding the unsupported weekend. Remaining uncertainty: migration readiness and demonstration/acceptance logistics are not evidenced; assign and confirm them before execution. E1's functional-test success does not establish migration safety.",
+      "review": {
+        "verdict": "accept",
+        "note": "The decision preserves the contractual delivery path and executable safeguards while explicitly retaining the unresolved acceptance and migration risks."
+      }
+    },
+    {
+      "slot": "nova",
+      "requestedModel": "GPT 5.6 Terra",
+      "runtimeModelReportedByCoordinator": "substrate-responses/gpt-5.6-terra",
+      "attributionSource": "Platform subagent status metadata returned by read_agent for agent nova-challenger (model field). Not a model self-report.",
+      "status": "complete",
+      "delivery": "coordinator-relay",
+      "findings": [
+        "Relayed after the fact, not a live milestone. Nova: (1) E3 makes an irreversible Friday migration risky with no support cover Friday 18:00-Monday 09:00; E4 permits a smaller internal-only exposure to five accounts without the migration. (2) E5 provides a penalty-free supervised Friday demonstration, so E2's 18,000-credit penalty is avoidable without launching."
+      ],
+      "conclusion": "Relayed conclusion (nova): Demonstrate Friday under supervision using the internal feature flag, then activate production on the next staffed business day. This preserves contractual compliance while avoiding an irreversible, unsupported migration. It gives up Friday external activation. Uncertainty: no evidence specifies demonstration acceptance mechanics or migration readiness beyond E1. Child-direct reporting was denied by a pending-approval block (REPORTING_UNAVAILABLE).",
+      "review": {
+        "verdict": "accept",
+        "note": "The decision matches the smaller compliant alternative and explicitly acknowledges its concession (no Friday external activation) and the remaining uncertainty."
+      }
+    }
+  ],
+  "synthesis": {
+    "decision": "Do not launch to production on Friday. Run a supervised demonstration on Friday before 18:00 using the feature flag on the five internal accounts, with no migration and external access disabled, and record acceptance under E5. Perform the irreversible migration, verification and external activation on the next staffed business day, no earlier than Monday 09:00, with engineering coverage and forward-recovery steps confirmed in advance. This is a recorded synthetic recommendation only; no release action was taken.",
+    "retained": [
+      "rune (E3): the migration cannot be rolled back and there is no engineering cover from Friday 18:00 to Monday 09:00, so a Friday migration is an irreversible failure mode with no operator for ~63 hours.",
+      "rune/nova (E2 + E5): the 18,000-credit penalty attaches to missing acceptance, and E5 accepts a supervised Friday demonstration with activation on the next staffed business day without penalty - so the safe plan and the compliant plan coincide.",
+      "nova (E4): a smaller compliant alternative exists - internal-only exposure to five accounts requires no migration; the cost it concedes is Friday external activation.",
+      "sol (E1 + E3): 240 passing functional tests show functional readiness but do not establish safety of an irreversible migration run without support.",
+      "sol: concrete execution detail - demonstrate before 18:00 Friday and record acceptance; confirm engineering coverage, readiness checks and forward-recovery procedures before migrating Monday."
+    ],
+    "rejected": [
+      "Full Friday production launch with migration - rejected against E3 (no rollback, no support window); E1 does not offset an unrecoverable action without coverage.",
+      "Treating E2's penalty as forcing a Friday production launch - rejected against E5, which provides a penalty-free demonstration path.",
+      "Friday external activation via the feature flag - rejected against E4, which states external activation requires the migration."
+    ],
+    "unresolved": [
+      "E5's supervised-demonstration acceptance mechanics (sign-off procedure, who supervises) are not specified in the evidence - raised by rune, nova and sol.",
+      "E3's no-rollback constraint still applies on Monday; staffing mitigates but does not remove it, and the evidence describes no mid-migration fallback (rune).",
+      "Migration readiness beyond functional testing is unverified (sol, nova).",
+      "Reporting provenance: only sol delivered child-direct milestones; rune and nova milestones reached the board as coordinator-relay after their direct calls were denied by a pending-approval block."
+    ]
+  },
+  "limitations": [
+    "Only sol reported directly; rune and nova required coordinator relays after pending-approval blocks.",
+    "Runtime model IDs and delivery labels are reported metadata, not independent serving-side attestation.",
+    "Elapsed time includes setup and approval delays; no model-speed benchmark or credit-cost measurement.",
+    "No successfully captured screenshot of the final synthesis is included.",
+    "This temporary synthetic prototype is not a production deployment."
+  ]
+}
